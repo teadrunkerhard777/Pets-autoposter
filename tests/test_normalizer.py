@@ -65,6 +65,7 @@ def test_normalize_item_preserves_project_scheduling_fields():
         "scheduled_at": "2026-08-25T12:00:00Z",
         "content_queue": " evergreen ",
         "content_type": " fighter ",
+        "presentation_format": " checklist ",
     }
 
     normalized = normalize_item(item, "Test")
@@ -79,3 +80,4 @@ def test_normalize_item_preserves_project_scheduling_fields():
     assert normalized["published_date"] == "2026-08-25"
     assert normalized["content_queue"] == "evergreen"
     assert normalized["content_type"] == "fighter"
+    assert normalized["presentation_format"] == "checklist"

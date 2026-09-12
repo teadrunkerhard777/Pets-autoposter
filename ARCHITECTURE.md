@@ -14,7 +14,8 @@ The reusable layer is ordinary Python modules:
 
 No core module imports topic keywords, channel hashtags, or a domain category.
 The generic normalizer preserves optional `event_at`, `scheduled_at`,
-`content_queue`, and `content_type` fields without deciding how to use them.
+`content_queue`, `content_type`, and `presentation_format` fields without
+deciding how to use them.
 
 ## Project-specific layer
 

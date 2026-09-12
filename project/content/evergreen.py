@@ -22,6 +22,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "checklist",
                 "description": "Короткая памятка о базовой домашней среде для кошек и собак.",
                 "article_text": (
                     "У питомца должны быть отдельные миски для еды и свежей воды, "
@@ -42,6 +43,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "before_getting",
                 "description": "Что важно оценить до появления канарейки, кореллы или другой птицы.",
                 "article_text": (
                     "Разным домашним птицам нужны разные условия, но маленькая "
@@ -72,6 +74,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "seasonal_checklist",
                 "description": "Сезонные бытовые риски без назначения лечения.",
                 "article_text": (
                     "Осенью после прогулки полезно осмотреть лапы и шерсть собаки, "
@@ -92,6 +95,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "checklist",
                 "description": "Подготовка переноски, дома и контактов владельца.",
                 "article_text": (
                     "До поездки проверьте переноску, сетки на окнах и места, через "
@@ -112,6 +116,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "quick_guide",
                 "description": "Базовые ориентиры для безопасной прогулки.",
                 "article_text": (
                     "Поводок выбирают с учётом размера, силы и поведения собаки. "
@@ -132,6 +137,7 @@ EVERGREEN_SOURCES = [
                 "scheduled_at": QUEUE_READY_AT,
                 "content_queue": "evergreen",
                 "content_type": "pet_care",
+                "presentation_format": "before_getting",
                 "description": "Почему экзотический питомец начинается с изучения условий вида.",
                 "article_text": (
                     "До появления ящерицы нужно выбрать вид и подготовить террариум "

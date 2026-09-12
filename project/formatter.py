@@ -2,6 +2,7 @@
 
 from datetime import date, datetime
 from html import escape
+import re
 
 from generation.text import fit_text_to_html_limit
 
@@ -22,6 +23,12 @@ CATEGORY_TAGS = {
     "evergreen_cat_fact": "#Кошки", "evergreen_pet_care": "#УходЗаПитомцем",
     "evergreen_adoption_story": "#ВозьмиИзПриюта", "evergreen_breed": "#ДомашниеЖивотные",
 }
+FORMAT_KICKERS = {
+    "checklist": "✅ СОХРАНИТЕ ЧЕК-ЛИСТ",
+    "quick_guide": "🧭 КОРОТКАЯ ИНСТРУКЦИЯ",
+    "seasonal_checklist": "🍂 СЕЗОННАЯ ПАМЯТКА",
+    "before_getting": "🏡 ДО ПОЯВЛЕНИЯ ПИТОМЦА",
+}
 
 
 def format_post(news_item):
@@ -37,7 +44,9 @@ def _format(news_item, limit, body_preview_limit):
     source = escape(str(news_item.get("source") or "Источник не указан"))
     url = escape(str(news_item.get("url") or ""), quote=True)
     label = CATEGORY_LABELS.get(news_item.get("event_category"), CATEGORY_LABELS["pet_news"])
-    header = f"{label}\n\n<b>{title}</b>"
+    kicker = FORMAT_KICKERS.get(news_item.get("presentation_format"))
+    header = "\n".join(block for block in (label, kicker) if block)
+    header = f"{header}\n\n<b>{title}</b>"
     disclaimer = "⚠️ При тревожных симптомах обратитесь в ветклинику." if news_item.get("needs_vet_disclaimer") else ""
     footer = f"📅 Материал: {_format_date(news_item.get('published_at'), news_item.get('published_date'))}\n📰 {source}\n\n🔗 <a href=\"{url}\">Источник</a>\n\n{_hashtags(news_item)}"
     fixed = "\n\n".join(block for block in (header, disclaimer, footer) if block)
@@ -46,7 +55,10 @@ def _format(news_item, limit, body_preview_limit):
         max(0, limit - len(fixed) - 2),
     )
     body = fit_text_to_html_limit(
-        news_item.get("article_text") or news_item.get("description", ""),
+        _structured_body(
+            news_item.get("article_text") or news_item.get("description", ""),
+            news_item.get("presentation_format"),
+        ),
         available_body,
     )
     return "\n\n".join(block for block in (header, escape(body) if body else "", disclaimer, footer) if block)
@@ -60,6 +72,23 @@ def _hashtags(news_item):
     )
     tags.extend("#Кошки" if species == "cats" else "#Собаки" if species == "dogs" else "#Питомцы" for species in species_values)
     return " ".join(dict.fromkeys(tags))
+
+
+def _structured_body(value, presentation_format):
+    """Give curated items a scannable shape without rewriting source facts."""
+
+    text = " ".join(str(value or "").split())
+    if presentation_format not in {
+        "checklist", "quick_guide", "seasonal_checklist", "before_getting",
+    }:
+        return text
+
+    sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
+    if presentation_format == "quick_guide":
+        return "\n".join(f"{index}. {sentence}" for index, sentence in enumerate(sentences, 1))
+    if presentation_format == "before_getting":
+        return "Сначала оцените условия:\n" + "\n".join(f"• {sentence}" for sentence in sentences)
+    return "\n".join(f"• {sentence}" for sentence in sentences)
 
 
 def _format_date(value, date_value=None):

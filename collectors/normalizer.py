@@ -86,7 +86,7 @@ def normalize_item(item, source_name):
             item.get("published_date")
         )
 
-    for key in ("content_queue", "content_type"):
+    for key in ("content_queue", "content_type", "presentation_format"):
         if key in item:
             normalized[key] = str(item.get(key) or "").strip()
 

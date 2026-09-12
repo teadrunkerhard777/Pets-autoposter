@@ -108,6 +108,38 @@ def test_formatter_escapes_html_and_caption_stays_limited():
     assert len(post) < 2000
 
 
+def test_curated_checklist_gets_scannable_bullets():
+    story = item("Домашняя памятка", "Проверьте воду. Уберите лекарства.")
+    story.update(
+        content_queue="evergreen",
+        content_type="pet_care",
+        presentation_format="checklist",
+    )
+    assert is_relevant(story)
+
+    preview = format_post(story)
+
+    assert "✅ СОХРАНИТЕ ЧЕК-ЛИСТ" in preview
+    assert "• Проверьте воду." in preview
+    assert "• Уберите лекарства." in preview
+
+
+def test_curated_quick_guide_gets_numbered_steps():
+    story = item("Прогулка", "Проверьте карабин. Осмотрите поводок.")
+    story.update(
+        content_queue="evergreen",
+        content_type="pet_care",
+        presentation_format="quick_guide",
+    )
+    assert is_relevant(story)
+
+    preview = format_post(story)
+
+    assert "🧭 КОРОТКАЯ ИНСТРУКЦИЯ" in preview
+    assert "1. Проверьте карабин." in preview
+    assert "2. Осмотрите поводок." in preview
+
+
 def test_relevant_scoring_respects_the_publication_threshold():
     story = item("Практические советы: как ухаживать за собакой")
     assert filter_relevant([story], is_relevant) == [story]
@@ -144,6 +176,9 @@ def test_evergreen_queue_has_attributed_dated_direct_items():
 
     assert all(item["content_queue"] == "evergreen" for item in items)
     assert all(item["content_type"] == "pet_care" for item in items)
+    assert {item["presentation_format"] for item in items} == {
+        "checklist", "quick_guide", "seasonal_checklist", "before_getting",
+    }
     assert all(item["url"].startswith("https://") for item in items)
     assert all("example.invalid" not in item["url"] for item in items)
     assert all(item["published_at"] is None for item in items)
