@@ -1,8 +1,15 @@
 name: Pets Autoposter
 
-# The repository exposes a manual endpoint for a trusted external scheduler.
+# Manual runs are safe by default. A trusted external scheduler can explicitly
+# request publication through the same workflow_dispatch endpoint.
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Send selected posts to Telegram"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,11 +43,11 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          AUTOPOSTER_DRY_RUN: "false"
+          AUTOPOSTER_DRY_RUN: ${{ inputs.publish && 'false' || 'true' }}
         run: python main.py
 
       - name: Commit publication history
-        if: ${{ success() }}
+        if: ${{ success() && inputs.publish }}
         shell: bash
         run: |
           if git diff --quiet -- storage/published.json; then

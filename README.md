@@ -50,4 +50,6 @@ cp .env.example .env
 
 `AUTOPOSTER_DRY_RUN` defaults to `true`: a local run never calls Telegram or changes `storage/published.json`.
 
+Deployment and safe control-run instructions are in [DEPLOYMENT.md](DEPLOYMENT.md).
+
 See [PROJECT_CONCEPT.md](PROJECT_CONCEPT.md), [SOURCES.md](SOURCES.md), and [EDITORIAL_POLICY.md](EDITORIAL_POLICY.md) for the channel rules.
