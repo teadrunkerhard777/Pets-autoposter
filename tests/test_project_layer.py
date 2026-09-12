@@ -188,5 +188,20 @@ def test_evergreen_queue_has_attributed_dated_direct_items():
 
 def test_every_visual_role_has_a_project_owned_png_cover():
     assert set(COVER_FILES) == VISUAL_TYPES
-    assert all(cover_path_for(role).is_file() for role in VISUAL_TYPES)
-    assert all(cover_path_for(role).suffix == ".png" for role in VISUAL_TYPES)
+    assert all(len(filenames) == 2 for filenames in COVER_FILES.values())
+    assert all(
+        (cover_path_for(role, f"article-{index}").is_file())
+        for role in VISUAL_TYPES
+        for index in range(10)
+    )
+    assert all(
+        {cover_path_for(role, f"article-{index}").name for index in range(20)}
+        == set(COVER_FILES[role])
+        for role in VISUAL_TYPES
+    )
+
+
+def test_cover_choice_is_stable_for_the_same_article():
+    assert cover_path_for("NEWS", "https://example.test/story") == cover_path_for(
+        "NEWS", "https://example.test/story",
+    )

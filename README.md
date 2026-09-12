@@ -16,7 +16,9 @@ The channel does not diagnose animals, prescribe treatment, promote breeding or 
 Posts use one of five visual roles: general pet news, safety, everyday care,
 animal welfare, or a cat fact. A suitable lead image from the attributed source
 remains the first choice. When it is missing or cannot be safely delivered, the
-autoposter uses the matching project-owned cover from `assets/covers/`.
+autoposter uses one of two matching project-owned covers from `assets/covers/`.
+The article URL selects the variant consistently, adding variety without
+changing the image when a run is retried.
 
 The covers contain no headline, logo, or event-specific claim, so the same set
 can support experiments with post length and editorial format without implying

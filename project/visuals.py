@@ -1,15 +1,16 @@
 """Project-owned visual roles for cats and pets posts."""
 
+from hashlib import sha256
 from pathlib import Path
 
 VISUAL_TYPES = {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
 COVER_DIRECTORY = Path(__file__).resolve().parents[1] / "assets" / "covers"
 COVER_FILES = {
-    "NEWS": "news.png",
-    "SAFETY": "safety.png",
-    "CARE": "care.png",
-    "WELFARE": "welfare.png",
-    "CAT_FACT": "cat_fact.png",
+    "NEWS": ("news.png", "news_2.png"),
+    "SAFETY": ("safety.png", "safety_2.png"),
+    "CARE": ("care.png", "care_2.png"),
+    "WELFARE": ("welfare.png", "welfare_2.png"),
+    "CAT_FACT": ("cat_fact.png", "cat_fact_2.png"),
 }
 
 
@@ -26,8 +27,13 @@ def visual_type_for(news_item):
     return "NEWS"
 
 
-def cover_path_for(visual_type):
-    """Return the project-owned fallback cover for a visual role."""
+def cover_path_for(visual_type, item_key=""):
+    """Return a stable project-owned cover variant for one item."""
 
-    filename = COVER_FILES.get(visual_type)
-    return COVER_DIRECTORY / filename if filename else None
+    filenames = COVER_FILES.get(visual_type)
+    if not filenames:
+        return None
+
+    identity = str(item_key or visual_type).encode("utf-8")
+    variant_index = sha256(identity).digest()[0] % len(filenames)
+    return COVER_DIRECTORY / filenames[variant_index]
