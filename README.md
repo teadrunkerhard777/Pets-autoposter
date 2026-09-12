@@ -23,7 +23,9 @@ news window, while unattended Blue Cross requests currently receive HTTP 403.
 
 Each run publishes at most two concise previews. Breaking safety information
 stays first; other positions prefer different sources to keep the channel mix
-varied while the format is being evaluated.
+varied while the format is being evaluated. One position is reserved for the
+curated evergreen queue when no urgent story needs the full batch. The initial
+queue covers cats, dogs, birds, and reptiles.
 
 ## Quick start
 

@@ -1,6 +1,6 @@
 """Russian Telegram presentation for the cats and pets channel."""
 
-from datetime import datetime
+from datetime import date, datetime
 from html import escape
 
 from generation.text import fit_text_to_html_limit
@@ -39,7 +39,7 @@ def _format(news_item, limit, body_preview_limit):
     label = CATEGORY_LABELS.get(news_item.get("event_category"), CATEGORY_LABELS["pet_news"])
     header = f"{label}\n\n<b>{title}</b>"
     disclaimer = "⚠️ При тревожных симптомах обратитесь в ветклинику." if news_item.get("needs_vet_disclaimer") else ""
-    footer = f"📅 Материал: {_format_date(news_item.get('published_at'))}\n📰 {source}\n\n🔗 <a href=\"{url}\">Источник</a>\n\n{_hashtags(news_item)}"
+    footer = f"📅 Материал: {_format_date(news_item.get('published_at'), news_item.get('published_date'))}\n📰 {source}\n\n🔗 <a href=\"{url}\">Источник</a>\n\n{_hashtags(news_item)}"
     fixed = "\n\n".join(block for block in (header, disclaimer, footer) if block)
     available_body = min(
         body_preview_limit,
@@ -58,5 +58,13 @@ def _hashtags(news_item):
     return " ".join(dict.fromkeys(tags))
 
 
-def _format_date(value):
-    return value.strftime("%d.%m.%Y") if isinstance(value, datetime) and value.tzinfo else "Дата не указана"
+def _format_date(value, date_value=None):
+    if isinstance(value, datetime) and value.tzinfo:
+        return value.strftime("%d.%m.%Y")
+
+    try:
+        parsed_date = date.fromisoformat(date_value)
+    except (TypeError, ValueError):
+        return "Дата не указана"
+
+    return parsed_date.strftime("%d.%m.%Y")

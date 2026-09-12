@@ -59,6 +59,7 @@ def test_normalize_item_preserves_project_scheduling_fields():
         "title": " MMA event ",
         "url": "https://example.test/event",
         "published_at": "2026-08-25T10:00:00Z",
+        "published_date": "2026-08-25",
         "event_at": "2026-08-27T10:00:00Z",
         "event_date": "2026-08-27",
         "scheduled_at": "2026-08-25T12:00:00Z",
@@ -75,5 +76,6 @@ def test_normalize_item_preserves_project_scheduling_fields():
         2026, 8, 25, 12, tzinfo=timezone.utc
     )
     assert normalized["event_date"] == "2026-08-27"
+    assert normalized["published_date"] == "2026-08-25"
     assert normalized["content_queue"] == "evergreen"
     assert normalized["content_type"] == "fighter"

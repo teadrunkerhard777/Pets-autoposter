@@ -104,14 +104,41 @@ def test_relevant_scoring_respects_the_publication_threshold():
     assert filter_by_minimum_score([story], MIN_PUBLICATION_SCORE) == [story]
 
 
-def test_enabled_sources_are_verified_welfare_rss_feeds():
+def test_enabled_sources_are_verified_russian_feeds_and_editorial_queues():
     enabled = [source for source in SOURCES if source["enabled"]]
-    assert {source["name"] for source in enabled} == {
+    feeds = [source for source in enabled if source["type"] == "rss"]
+    queues = [source for source in enabled if source["type"] == "static"]
+
+    assert {source["name"] for source in feeds} == {
         "Ветеринария и жизнь — Питомцы",
         "РосПриют",
         "РКФ",
     }
-    assert all(source["type"] == "rss" for source in enabled)
+    assert {source["name"] for source in queues} == {
+        "Ветеринария и жизнь",
+        "В Добрые Руки",
+    }
     assert all(source["language"] == "ru" for source in enabled)
-    assert any(source["type"] == "static" for source in SOURCES)
+    assert sum(len(source["items"]) for source in queues) == 6
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
+
+
+def test_evergreen_queue_has_attributed_dated_direct_items():
+    items = [
+        item
+        for source in SOURCES
+        if source.get("enabled") and source["type"] == "static"
+        for item in source["items"]
+    ]
+
+    assert all(item["content_queue"] == "evergreen" for item in items)
+    assert all(item["content_type"] == "pet_care" for item in items)
+    assert all(item["url"].startswith("https://") for item in items)
+    assert all("example.invalid" not in item["url"] for item in items)
+    assert all(item["published_at"] is None for item in items)
+    assert all(item["published_date"] for item in items)
+    assert all(item["scheduled_at"].tzinfo is not None for item in items)
+    assert all(item["article_text"] for item in items)
+
+    preview = format_post(items[0])
+    assert "📅 Материал: 11.04.2026" in preview
