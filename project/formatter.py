@@ -11,6 +11,10 @@ MESSAGE_LIMIT = 4000
 PHOTO_CAPTION_LIMIT = 1000
 MESSAGE_BODY_PREVIEW_LIMIT = 1100
 PHOTO_BODY_PREVIEW_LIMIT = 500
+RUSSIAN_MONTHS = (
+    "января", "февраля", "марта", "апреля", "мая", "июня",
+    "июля", "августа", "сентября", "октября", "ноября", "декабря",
+)
 CATEGORY_LABELS = {
     "urgent_safety": "🚨 БЕЗОПАСНОСТЬ ПИТОМЦА", "animal_welfare": "🤍 ПОМОЩЬ ЖИВОТНЫМ",
     "health": "🩺 ЗДОРОВЬЕ", "care": "🐾 УХОД ЗА ПИТОМЦЕМ", "pet_news": "🐾 ПИТОМЦЫ",
@@ -48,7 +52,12 @@ def _format(news_item, limit, body_preview_limit):
     header = "\n".join(block for block in (label, kicker) if block)
     header = f"{header}\n\n<b>{title}</b>"
     disclaimer = "⚠️ При тревожных симптомах обратитесь в ветклинику." if news_item.get("needs_vet_disclaimer") else ""
-    footer = f"📅 Материал: {_format_date(news_item.get('published_at'), news_item.get('published_date'))}\n📰 {source}\n\n🔗 <a href=\"{url}\">Источник</a>\n\n{_hashtags(news_item)}"
+    footer = (
+        f"📅 {_format_date(news_item.get('published_at'), news_item.get('published_date'))}\n"
+        f"📰 <a href=\"{url}\">{source}</a>\n\n"
+        f"🔗 <a href=\"{url}\">Читать источник</a>\n\n"
+        f"{_hashtags(news_item)}"
+    )
     fixed = "\n\n".join(block for block in (header, disclaimer, footer) if block)
     available_body = min(
         body_preview_limit,
@@ -93,11 +102,11 @@ def _structured_body(value, presentation_format):
 
 def _format_date(value, date_value=None):
     if isinstance(value, datetime) and value.tzinfo:
-        return value.strftime("%d.%m.%Y")
+        parsed_date = value.date()
+    else:
+        try:
+            parsed_date = date.fromisoformat(date_value)
+        except (TypeError, ValueError):
+            return "Дата не указана"
 
-    try:
-        parsed_date = date.fromisoformat(date_value)
-    except (TypeError, ValueError):
-        return "Дата не указана"
-
-    return parsed_date.strftime("%d.%m.%Y")
+    return f"{parsed_date.day} {RUSSIAN_MONTHS[parsed_date.month - 1]} {parsed_date.year}"

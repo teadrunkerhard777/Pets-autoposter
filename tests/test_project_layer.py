@@ -103,8 +103,10 @@ def test_formatter_escapes_html_and_caption_stays_limited():
 
     post = format_post(story)
     assert "&lt;Мурка&gt;" in post
-    assert "Pets &lt;Test&gt;" in post
+    assert '>Pets &lt;Test&gt;</a>' in post
     assert 'href="https://example.test/item?a=1&amp;b=2"' in post
+    assert "🔗" in post
+    assert ">Читать источник</a>" in post
     assert len(format_photo_caption(story)) <= 1000
     assert len(post) < 2000
 
@@ -183,7 +185,7 @@ def test_evergreen_queue_has_attributed_dated_direct_items():
     assert all(item["article_text"] for item in items)
 
     preview = format_post(items[0])
-    assert "📅 Материал: 11.04.2026" in preview
+    assert "📅 11 апреля 2026" in preview
 
 
 def test_every_visual_role_has_a_project_owned_png_cover():
