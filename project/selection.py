@@ -48,6 +48,7 @@ def select_editorial_mix(
         item for item in items
         if item.get("content_queue") != "evergreen"
     ]
+    reactive = _spread_non_priority_sources(reactive)
     evergreen = [
         item for item in items
         if item.get("content_queue") == "evergreen"
@@ -72,3 +73,31 @@ def select_editorial_mix(
     )
 
     return selected_reactive + selected_evergreen
+
+
+def _spread_non_priority_sources(news_items):
+    """Keep urgent order, then prefer a new source before repetitions."""
+
+    priority = [
+        item for item in news_items
+        if item.get("editorial_priority") in PRIORITY_NEWS
+    ]
+    regular = [
+        item for item in news_items
+        if item.get("editorial_priority") not in PRIORITY_NEWS
+    ]
+    seen_sources = {
+        item.get("source") for item in priority if item.get("source")
+    }
+    distinct = []
+    repeated = []
+
+    for item in regular:
+        source = item.get("source")
+        if source and source not in seen_sources:
+            distinct.append(item)
+            seen_sources.add(source)
+        else:
+            repeated.append(item)
+
+    return priority + distinct + repeated

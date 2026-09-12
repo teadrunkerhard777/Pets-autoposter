@@ -8,6 +8,8 @@ from generation.text import fit_text_to_html_limit
 
 MESSAGE_LIMIT = 4000
 PHOTO_CAPTION_LIMIT = 1000
+MESSAGE_BODY_PREVIEW_LIMIT = 1100
+PHOTO_BODY_PREVIEW_LIMIT = 500
 CATEGORY_LABELS = {
     "urgent_safety": "🚨 БЕЗОПАСНОСТЬ ПИТОМЦА", "animal_welfare": "🤍 ПОМОЩЬ ЖИВОТНЫМ",
     "health": "🩺 ЗДОРОВЬЕ", "care": "🐾 УХОД ЗА ПИТОМЦЕМ", "pet_news": "🐾 ПИТОМЦЫ",
@@ -23,14 +25,14 @@ CATEGORY_TAGS = {
 
 
 def format_post(news_item):
-    return _format(news_item, MESSAGE_LIMIT)
+    return _format(news_item, MESSAGE_LIMIT, MESSAGE_BODY_PREVIEW_LIMIT)
 
 
 def format_photo_caption(news_item):
-    return _format(news_item, PHOTO_CAPTION_LIMIT)
+    return _format(news_item, PHOTO_CAPTION_LIMIT, PHOTO_BODY_PREVIEW_LIMIT)
 
 
-def _format(news_item, limit):
+def _format(news_item, limit, body_preview_limit):
     title = escape(str(news_item.get("title") or "Без заголовка")[:500])
     source = escape(str(news_item.get("source") or "Источник не указан"))
     url = escape(str(news_item.get("url") or ""), quote=True)
@@ -39,7 +41,14 @@ def _format(news_item, limit):
     disclaimer = "⚠️ При тревожных симптомах обратитесь в ветклинику." if news_item.get("needs_vet_disclaimer") else ""
     footer = f"📅 Материал: {_format_date(news_item.get('published_at'))}\n📰 {source}\n\n🔗 <a href=\"{url}\">Источник</a>\n\n{_hashtags(news_item)}"
     fixed = "\n\n".join(block for block in (header, disclaimer, footer) if block)
-    body = fit_text_to_html_limit(news_item.get("article_text") or news_item.get("description", ""), max(0, limit - len(fixed) - 2))
+    available_body = min(
+        body_preview_limit,
+        max(0, limit - len(fixed) - 2),
+    )
+    body = fit_text_to_html_limit(
+        news_item.get("article_text") or news_item.get("description", ""),
+        available_body,
+    )
     return "\n\n".join(block for block in (header, escape(body) if body else "", disclaimer, footer) if block)
 
 

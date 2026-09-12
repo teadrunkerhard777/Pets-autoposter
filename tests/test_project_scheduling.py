@@ -42,3 +42,21 @@ def test_editorial_mix_reserves_a_slot_for_due_evergreen_content():
     selected = select_editorial_mix(reactive + [evergreen], limit=2, diversity_settings={"enabled": False}, evergreen_slots=1)
     assert len(selected) == 2
     assert sum(value.get("content_queue") == "evergreen" for value in selected) == 1
+
+
+def test_editorial_mix_prefers_distinct_sources_after_breaking_news():
+    breaking = score(story("Срочное предупреждение об отравлении кошки"))
+    breaking["source"] = "Источник A"
+    same_source = score(story("Ветеринар рассказал о здоровье собаки"))
+    same_source["source"] = "Источник A"
+    other_source = score(story("Приют ищет дом для собаки"))
+    other_source["source"] = "Источник B"
+
+    selected = select_editorial_mix(
+        [breaking, same_source, other_source],
+        limit=2,
+        diversity_settings={"enabled": False},
+        evergreen_slots=0,
+    )
+
+    assert selected == [breaking, other_source]

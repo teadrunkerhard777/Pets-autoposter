@@ -17,9 +17,9 @@ SPECIES_KEYWORDS = {
     "small_pets": ("rabbit", "hamster", "guinea pig", "parrot", "bird", "рыбк", "кролик", "хомяк", "попуг"),
 }
 EVENT_CATEGORY_KEYWORDS = (
-    ("urgent_safety", ("recall", "outbreak", "warning", "опасност", "отзыв", "вспышк", "предупрежд")),
+    ("urgent_safety", ("recall", "outbreak", "warning", "poison", "toxic", "отзыв", "вспышк", "предупрежд", "отрав", "токсич")),
     ("animal_welfare", ("rescue", "shelter", "adoption", "cruelty", "приют", "спас", "пристро", "жесток")),
-    ("health", ("health", "disease", "veterinary", "vet", "здоров", "болезн", "ветеринар")),
+    ("health", ("health", "disease", "veterinary", "vet", "здоровье", "заболев", "болезн", "инфекц", "диагност", "лечен", "ветеринар")),
     ("care", ("care", "nutrition", "behavior", "training", "grooming", "уход", "питани", "поведен", "дрессиров", "воспитани")),
 )
 EDITORIAL_SIGNAL_KEYWORDS = {
@@ -28,8 +28,17 @@ EDITORIAL_SIGNAL_KEYWORDS = {
     "practical": ("how to", "tips", "guide", "checklist", "совет", "как ", "памятк"),
 }
 EVERGREEN_CONTENT_TYPES = {"cat_fact", "pet_care", "adoption_story", "breed"}
-TRUSTED_PET_SOURCES = {"ASPCA News", "Blue Cross News"}
-MEDICAL_DISCLAIMER_KEYWORDS = ("emergency", "urgent", "poison", "токсич", "экстренн")
+TRUSTED_PET_SOURCES = {
+    "ASPCA News",
+    "Blue Cross News",
+    "Ветеринария и жизнь — Питомцы",
+    "РосПриют",
+    "РКФ",
+}
+MEDICAL_DISCLAIMER_KEYWORDS = (
+    "emergency", "urgent", "poison", "toxic", "отрав", "токсич",
+    "экстренн", "срочн",
+)
 
 
 def is_relevant(news_item):
@@ -70,7 +79,7 @@ def _contains_any(text, keywords):
 
 def _contains_keyword(text, keyword):
     if keyword.isascii():
-        return re.search(rf"(?<!\\w){re.escape(keyword)}(?!\\w)", text) is not None
+        return re.search(rf"(?<!\w){re.escape(keyword)}(?!\w)", text) is not None
     return keyword in text
 
 

@@ -144,6 +144,18 @@ def test_rss_collector_leaves_feed_content_opt_in(monkeypatch):
     assert "image_url" not in item
 
 
+def test_full_feed_content_does_not_use_article_url_as_missing_image(monkeypatch):
+    parsed = feedparser.parse(RSS)
+    monkeypatch.setattr(
+        "collectors.rss_collector.feedparser.parse",
+        lambda url: parsed,
+    )
+
+    item = collect_rss(source(use_feed_content=True))[0]
+
+    assert item["image_url"] is None
+
+
 def test_rss_collector_bounds_live_feed_request(monkeypatch):
     class Response:
         content = RSS
@@ -185,3 +197,27 @@ def test_rss_collector_isolates_feed_timeout(monkeypatch, capsys):
 
     assert collect_rss(source(feed_timeout=1)) == []
     assert "ConnectTimeout" in capsys.readouterr().out
+
+
+def test_rss_collector_retries_configured_transient_failure(monkeypatch):
+    class Response:
+        content = RSS
+
+        def raise_for_status(self):
+            return None
+
+    attempts = []
+
+    def get(*args, **kwargs):
+        attempts.append(kwargs)
+        if len(attempts) == 1:
+            raise requests.exceptions.ChunkedEncodingError("truncated feed")
+        return Response()
+
+    monkeypatch.setattr("collectors.rss_collector.requests.get", get)
+    monkeypatch.setattr("collectors.rss_collector.time.sleep", lambda delay: None)
+
+    items = collect_rss(source(feed_timeout=5, feed_retries=1))
+
+    assert len(items) == 2
+    assert len(attempts) == 2

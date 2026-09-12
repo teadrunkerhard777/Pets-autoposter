@@ -1,3 +1,4 @@
+import time
 from urllib.parse import urljoin
 
 import feedparser
@@ -5,6 +6,9 @@ import requests
 from bs4 import BeautifulSoup
 
 from collectors.normalizer import normalize_item
+
+
+FEED_RETRY_DELAY_SECONDS = 0.5
 
 
 def collect_rss(source):
@@ -52,13 +56,21 @@ def _parse_feed(source):
     if timeout is None:
         return feedparser.parse(source["url"])
 
-    response = requests.get(
-        source["url"],
-        headers=source.get("headers") or {},
-        timeout=max(1, float(timeout)),
-    )
-    response.raise_for_status()
-    return feedparser.parse(response.content)
+    retries = max(0, int(source.get("feed_retries", 0)))
+
+    for attempt in range(retries + 1):
+        try:
+            response = requests.get(
+                source["url"],
+                headers=source.get("headers") or {},
+                timeout=max(1, float(timeout)),
+            )
+            response.raise_for_status()
+            return feedparser.parse(response.content)
+        except requests.RequestException:
+            if attempt == retries:
+                raise
+            time.sleep(FEED_RETRY_DELAY_SECONDS)
 
 
 def _extract_feed_article(entry, source):
@@ -95,5 +107,9 @@ def _extract_feed_article(entry, source):
 
     return {
         "article_text": "\n\n".join(paragraphs),
-        "image_url": urljoin(entry.get("link", ""), image_url) or None,
+        "image_url": (
+            urljoin(entry.get("link", ""), image_url)
+            if image_url
+            else None
+        ),
     }

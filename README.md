@@ -11,12 +11,19 @@ Rule-based Telegram autoposter for a Russian-language channel about cats and dom
 
 The channel does not diagnose animals, prescribe treatment, promote breeding or sales, or turn rumours into news. A material that signals an emergency or poisoning receives a clear instruction to contact a veterinary clinic.
 
-## Active sources
+## Sources
 
-- ASPCA News — animal-welfare news;
-- Blue Cross News — animal-welfare and responsible-pet-care news.
+- «Ветеринария и жизнь — Питомцы» — health, care, and pet-industry reporting;
+- «РосПриют» — shelters, adoption, and animal-welfare events;
+- РКФ — dogs, responsible ownership, and canine events.
 
-These sources currently publish in English. The autoposter preserves their original headlines and text with attribution; it does not claim to translate them. Add Russian sources only after their dates, direct article links, and extraction are verified.
+All active sources publish in Russian. ASPCA and Blue Cross remain registered
+but disabled: ASPCA is English-language and too infrequent for the configured
+news window, while unattended Blue Cross requests currently receive HTTP 403.
+
+Each run publishes at most two concise previews. Breaking safety information
+stays first; other positions prefer different sources to keep the channel mix
+varied while the format is being evaluated.
 
 ## Quick start
 

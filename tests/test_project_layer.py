@@ -29,6 +29,14 @@ def test_filter_accepts_cats_and_rejects_unrelated_material():
     assert rejected["event_category"] is None
 
 
+def test_filter_does_not_match_pet_keywords_inside_english_words():
+    for title in ("A catastrophe was avoided", "A bobcat loader", "Dogmatic rules"):
+        story = item(title)
+
+        assert is_relevant(story) is False
+        assert story["event_category"] is None
+
+
 def test_welfare_story_gets_meaningful_category_and_priority():
     story = item("Приют нашёл семьи для спасённых кошек")
 
@@ -44,6 +52,27 @@ def test_urgent_veterinary_story_has_disclaimer_without_giving_treatment():
     assert is_relevant(story) is True
     assert story["needs_vet_disclaimer"] is True
     assert "обратитесь в ветклинику" in format_post(story)
+
+
+def test_general_safety_language_does_not_create_breaking_news():
+    story = item("Цифровой контроль защищает безопасность кормов для собак")
+
+    assert is_relevant(story) is True
+    assert story["event_category"] != "urgent_safety"
+
+
+def test_well_wishes_do_not_create_health_story():
+    story = item("Желаем всем собакам здоровья и активной жизни")
+
+    assert is_relevant(story) is True
+    assert story["event_category"] == "pet_news"
+
+
+def test_infection_story_is_classified_as_health():
+    story = item("Мочевые инфекции у собак и кошек")
+
+    assert is_relevant(story) is True
+    assert story["event_category"] == "health"
 
 
 def test_evergreen_cat_fact_is_accepted_and_formatted():
@@ -65,6 +94,7 @@ def test_formatter_escapes_html_and_caption_stays_limited():
     assert "Pets &lt;Test&gt;" in post
     assert 'href="https://example.test/item?a=1&amp;b=2"' in post
     assert len(format_photo_caption(story)) <= 1000
+    assert len(post) < 2000
 
 
 def test_relevant_scoring_respects_the_publication_threshold():
@@ -76,7 +106,12 @@ def test_relevant_scoring_respects_the_publication_threshold():
 
 def test_enabled_sources_are_verified_welfare_rss_feeds():
     enabled = [source for source in SOURCES if source["enabled"]]
-    assert {source["name"] for source in enabled} == {"ASPCA News", "Blue Cross News"}
+    assert {source["name"] for source in enabled} == {
+        "Ветеринария и жизнь — Питомцы",
+        "РосПриют",
+        "РКФ",
+    }
     assert all(source["type"] == "rss" for source in enabled)
+    assert all(source["language"] == "ru" for source in enabled)
     assert any(source["type"] == "static" for source in SOURCES)
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
