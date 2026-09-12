@@ -103,6 +103,60 @@ def test_history_changes_once_after_confirmed_text_success():
     assert len(history) == 1
 
 
+def test_local_category_cover_is_sent_before_text_fallback(tmp_path):
+    cover = tmp_path / "care.png"
+    cover.write_bytes(b"project cover")
+    item = news()
+    item["fallback_image_path"] = str(cover)
+    photo_calls = []
+
+    def send_photo(photo, caption, **kwargs):
+        photo_calls.append((photo.read(), kwargs))
+        return TelegramSendResult(True)
+
+    history = []
+    changed = publish_selected_news(
+        [item],
+        history,
+        False,
+        "single",
+        send_post=fail_if_called,
+        send_photo=send_photo,
+    )
+
+    assert changed is True
+    assert len(history) == 1
+    assert photo_calls == [(
+        b"project cover",
+        {"filename": "care.png", "mime_type": "image/png"},
+    )]
+
+
+def test_uncertain_remote_photo_does_not_send_category_cover(tmp_path):
+    cover = tmp_path / "safety.png"
+    cover.write_bytes(b"project cover")
+    item = news("https://img.test/photo.jpg")
+    item["fallback_image_path"] = str(cover)
+    calls = []
+
+    def send_photo(*args, **kwargs):
+        calls.append(1)
+        return TelegramSendResult(False, "ReadTimeout", uncertain=True)
+
+    changed = publish_selected_news(
+        [item],
+        [],
+        False,
+        "single",
+        send_post=fail_if_called,
+        send_photo=send_photo,
+        download_image=fail_if_called,
+    )
+
+    assert changed is False
+    assert calls == [1]
+
+
 def test_successful_remote_photo_does_not_call_text_fallback():
     history = []
     changed = publish_selected_news(

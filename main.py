@@ -1,5 +1,7 @@
 """One understandable collection-to-publication pipeline."""
 
+from pathlib import Path
+
 from bs4 import FeatureNotFound
 from bs4.exceptions import ParserRejectedMarkup
 from requests import RequestException
@@ -167,6 +169,7 @@ def publish_selected_news(
             if is_supported_remote_image_url(raw_image_url)
             else None
         )
+        fallback_image = _existing_fallback_image(item)
 
         if raw_image_url and image_url is None:
             print("Image warning: unsupported remote URL")
@@ -203,8 +206,13 @@ def publish_selected_news(
                 f"{item.get('editorial_priority') or 'standard'}"
             )
             print(f"Visual type: {item.get('visual_type') or 'NEWS'}")
-            print(f"Image URL: {validated_image_url or 'NOT FOUND'}")
-            print(caption if validated_image_url else post)
+            if validated_image_url:
+                print(f"Image URL: {validated_image_url}")
+            elif fallback_image:
+                print(f"Category cover: {fallback_image.name}")
+            else:
+                print("Image URL: NOT FOUND")
+            print(caption if validated_image_url or fallback_image else post)
             continue
 
         if post_mode != "single":
@@ -249,6 +257,20 @@ def publish_selected_news(
                     if temporary_image and temporary_image.path.exists():
                         temporary_image.path.unlink()
 
+        if not succeeded and not uncertain and fallback_image:
+            try:
+                with fallback_image.open("rb") as image_file:
+                    cover_result = send_photo(
+                        image_file,
+                        caption,
+                        filename=fallback_image.name,
+                        mime_type="image/png",
+                    )
+                succeeded = bool(cover_result)
+                uncertain = getattr(cover_result, "uncertain", False)
+            except OSError as error:
+                print(f"Category cover warning: {type(error).__name__}")
+
         if not succeeded and not uncertain:
             text_result = send_post(post)
             succeeded = bool(text_result)
@@ -260,6 +282,17 @@ def publish_selected_news(
             history_changed = True
 
     return history_changed
+
+
+def _existing_fallback_image(item):
+    """Return an existing PNG cover attached by the project layer."""
+
+    raw_path = item.get("fallback_image_path")
+    if not raw_path:
+        return None
+
+    path = Path(raw_path)
+    return path if path.is_file() and path.suffix.casefold() == ".png" else None
 
 
 def _source_configs_by_name(sources=None):

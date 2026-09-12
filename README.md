@@ -11,6 +11,17 @@ Rule-based Telegram autoposter for a Russian-language channel about cats and dom
 
 The channel does not diagnose animals, prescribe treatment, promote breeding or sales, or turn rumours into news. A material that signals an emergency or poisoning receives a clear instruction to contact a veterinary clinic.
 
+## Visual format
+
+Posts use one of five visual roles: general pet news, safety, everyday care,
+animal welfare, or a cat fact. A suitable lead image from the attributed source
+remains the first choice. When it is missing or cannot be safely delivered, the
+autoposter uses the matching project-owned cover from `assets/covers/`.
+
+The covers contain no headline, logo, or event-specific claim, so the same set
+can support experiments with post length and editorial format without implying
+that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.md).
+
 ## Sources
 
 - «Ветеринария и жизнь — Питомцы» — health, care, and pet-industry reporting;

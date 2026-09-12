@@ -27,6 +27,7 @@ Everything a new channel owner normally changes lives in `project/`:
 - `scheduling.py`: event windows and scheduled-item eligibility;
 - `selection.py`: reactive versus evergreen batch allocation;
 - `settings.py`: limits and event-dedup thresholds.
+- `visuals.py`: visual-role assignment and project-owned fallback covers.
 
 ## Control flow
 
@@ -41,6 +42,7 @@ enabled sources
 -> history or DRY_RUN bypass
 -> project editorial mix inside MAX_NEWS_PER_RUN
 -> project formatter
+-> validated source image or project category cover
 -> Telegram publisher or DRY_RUN output
 -> confirmed-success history update
 ```
@@ -70,6 +72,8 @@ remote URL sendPhoto
 -> only a confirmed Telegram remote-fetch error
 -> validated temporary download
 -> multipart sendPhoto
+-> confirmed failure
+-> project-owned category cover
 -> confirmed failure
 -> sendMessage
 ```

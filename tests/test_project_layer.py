@@ -6,7 +6,7 @@ from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
 from project.settings import MIN_PUBLICATION_SCORE
 from project.sources import SOURCES
-from project.visuals import VISUAL_TYPES
+from project.visuals import COVER_FILES, VISUAL_TYPES, cover_path_for
 
 
 def item(title, description=""):
@@ -153,3 +153,9 @@ def test_evergreen_queue_has_attributed_dated_direct_items():
 
     preview = format_post(items[0])
     assert "📅 Материал: 11.04.2026" in preview
+
+
+def test_every_visual_role_has_a_project_owned_png_cover():
+    assert set(COVER_FILES) == VISUAL_TYPES
+    assert all(cover_path_for(role).is_file() for role in VISUAL_TYPES)
+    assert all(cover_path_for(role).suffix == ".png" for role in VISUAL_TYPES)

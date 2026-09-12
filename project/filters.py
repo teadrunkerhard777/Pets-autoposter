@@ -2,7 +2,7 @@
 
 import re
 
-from project.visuals import visual_type_for
+from project.visuals import cover_path_for, visual_type_for
 
 
 PET_KEYWORDS = (
@@ -71,6 +71,8 @@ def is_relevant(news_item):
     news_item["needs_vet_disclaimer"] = relevant and _contains_any(text, MEDICAL_DISCLAIMER_KEYWORDS)
     news_item["event_category"] = category
     news_item["visual_type"] = visual_type_for(news_item) if relevant else None
+    cover_path = cover_path_for(news_item["visual_type"])
+    news_item["fallback_image_path"] = str(cover_path) if cover_path else None
     return relevant
 
 
