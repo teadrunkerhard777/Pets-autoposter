@@ -75,6 +75,17 @@ def test_infection_story_is_classified_as_health():
     assert story["event_category"] == "health"
 
 
+def test_hashtags_use_species_from_headline_before_incidental_body_mentions():
+    story = item("Парацетамол опасен для кошек")
+    story["article_text"] = "В материале также сравнивается метаболизм собак."
+
+    assert is_relevant(story) is True
+    assert story["matched_species"] == ["cats", "dogs"]
+    assert story["primary_species"] == ["cats"]
+    assert "#Кошки" in format_post(story)
+    assert "#Собаки" not in format_post(story)
+
+
 def test_evergreen_cat_fact_is_accepted_and_formatted():
     story = item("Факт о кошках: зачем нужен распорядок")
     story.update(content_queue="evergreen", content_type="cat_fact")

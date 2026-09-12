@@ -49,6 +49,10 @@ def is_relevant(news_item):
     requested_type = news_item.get("content_type")
     is_evergreen = queue == "evergreen" and requested_type in EVERGREEN_CONTENT_TYPES
     species = _matches_by_name(text, SPECIES_KEYWORDS)
+    primary_species = _matches_by_name(
+        _item_text(news_item, ("title", "description")),
+        SPECIES_KEYWORDS,
+    )
     relevant = is_evergreen or bool(species) or (
         news_item.get("source") in TRUSTED_PET_SOURCES and _contains_any(text, PET_KEYWORDS)
     )
@@ -57,6 +61,7 @@ def is_relevant(news_item):
 
     news_item["matched_topics"] = _unique([*species, category] if relevant else [])
     news_item["matched_species"] = species
+    news_item["primary_species"] = primary_species or species
     news_item["editorial_signals"] = signals
     news_item["event_participants"] = []
     news_item["event_locations"] = []
@@ -69,8 +74,8 @@ def is_relevant(news_item):
     return relevant
 
 
-def _item_text(news_item):
-    return " ".join(str(news_item.get(key, "")) for key in ("title", "description", "article_text")).casefold()
+def _item_text(news_item, keys=("title", "description", "article_text")):
+    return " ".join(str(news_item.get(key, "")) for key in keys).casefold()
 
 
 def _contains_any(text, keywords):

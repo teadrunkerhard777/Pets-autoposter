@@ -54,7 +54,11 @@ def _format(news_item, limit, body_preview_limit):
 
 def _hashtags(news_item):
     tags = [CATEGORY_TAGS.get(news_item.get("event_category"), "#ДомашниеЖивотные")]
-    tags.extend("#Кошки" if species == "cats" else "#Собаки" if species == "dogs" else "#Питомцы" for species in news_item.get("matched_species", []))
+    species_values = news_item.get("primary_species") or news_item.get(
+        "matched_species",
+        [],
+    )
+    tags.extend("#Кошки" if species == "cats" else "#Собаки" if species == "dogs" else "#Питомцы" for species in species_values)
     return " ".join(dict.fromkeys(tags))
 
 
