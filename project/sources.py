@@ -1,7 +1,5 @@
 """Free, verified sources for the cats and pets channel."""
 
-from project.content.evergreen import EVERGREEN_SOURCES
-
 SOURCES = [
     {
         "name": "ASPCA News",
@@ -68,7 +66,6 @@ SOURCES = [
         "feed_timeout": 15,
         "trust": 0.90,
     },
-    *EVERGREEN_SOURCES,
 ]
 
 SOURCE_EXTRACTORS = {}

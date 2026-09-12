@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from processing.filters import add_scores, filter_relevant, filter_by_minimum_score
+from project.content.evergreen import EVERGREEN_SOURCES
 from project.filters import is_relevant
 from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
@@ -147,7 +148,7 @@ def test_relevant_scoring_respects_the_publication_threshold():
     assert filter_by_minimum_score([story], MIN_PUBLICATION_SCORE) == [story]
 
 
-def test_enabled_sources_are_verified_russian_feeds_and_editorial_queues():
+def test_enabled_sources_are_only_verified_russian_feeds():
     enabled = [source for source in SOURCES if source["enabled"]]
     feeds = [source for source in enabled if source["type"] == "rss"]
     queues = [source for source in enabled if source["type"] == "static"]
@@ -157,20 +158,15 @@ def test_enabled_sources_are_verified_russian_feeds_and_editorial_queues():
         "РосПриют",
         "РКФ",
     }
-    assert {source["name"] for source in queues} == {
-        "Ветеринария и жизнь",
-        "В Добрые Руки",
-    }
+    assert queues == []
     assert all(source["language"] == "ru" for source in enabled)
-    assert sum(len(source["items"]) for source in queues) == 6
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
 
 
 def test_evergreen_queue_has_attributed_dated_direct_items():
     items = [
         item
-        for source in SOURCES
-        if source.get("enabled") and source["type"] == "static"
+        for source in EVERGREEN_SOURCES
         for item in source["items"]
     ]
 

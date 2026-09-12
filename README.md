@@ -7,7 +7,7 @@ Rule-based Telegram autoposter for a Russian-language channel about cats and dom
 - cats, dogs, and small domestic pets;
 - responsible ownership, behaviour, care, adoption, shelters, and animal welfare;
 - urgent safety notices from accountable sources;
-- scheduled evergreen facts about cats and everyday pet care.
+- fresh news and useful articles about everyday life with pets.
 
 The channel does not diagnose animals, prescribe treatment, promote breeding or sales, or turn rumours into news. A material that signals an emergency or poisoning receives a clear instruction to contact a veterinary clinic.
 
@@ -34,9 +34,9 @@ news window, while unattended Blue Cross requests currently receive HTTP 403.
 
 Each run publishes at most two concise previews. Breaking safety information
 stays first; other positions prefer different sources to keep the channel mix
-varied while the format is being evaluated. One position is reserved for the
-curated evergreen queue when no urgent story needs the full batch. The initial
-queue covers cats, dogs, birds, and reptiles.
+varied while the format is being evaluated. The curated evergreen queue is
+retained for future experiments but is not connected to the active sources and
+has no reserved publication slot.
 
 ## Quick start
 
