@@ -1,7 +1,7 @@
 """Settings for the cats and domestic pets autoposter."""
 
 NEWS_LOOKBACK_DAYS = 5
-MAX_NEWS_PER_RUN = 2
+MAX_NEWS_PER_RUN = 1
 MIN_PUBLICATION_SCORE = 5
 EVERGREEN_SLOTS_PER_RUN = 0
 POST_MODE = "single"

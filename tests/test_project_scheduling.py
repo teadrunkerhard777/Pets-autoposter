@@ -4,7 +4,7 @@ from project.filters import is_relevant
 from project.scoring import calculate_score
 from project.scheduling import filter_time_eligible
 from project.selection import select_editorial_mix
-from project.settings import EVERGREEN_SLOTS_PER_RUN
+from project.settings import EVERGREEN_SLOTS_PER_RUN, MAX_NEWS_PER_RUN
 
 
 NOW = datetime(2026, 9, 8, 12, tzinfo=timezone.utc)
@@ -12,6 +12,10 @@ NOW = datetime(2026, 9, 8, 12, tzinfo=timezone.utc)
 
 def test_active_configuration_reserves_no_evergreen_slots():
     assert EVERGREEN_SLOTS_PER_RUN == 0
+
+
+def test_active_configuration_selects_one_item_per_run():
+    assert MAX_NEWS_PER_RUN == 1
 
 
 def story(title, **values):
