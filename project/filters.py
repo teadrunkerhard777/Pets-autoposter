@@ -60,7 +60,8 @@ EDITORIAL_MISMATCH_KEYWORDS = (
     "форум", "рынок", "маркировк", "ветеринар предупред", "ветврач предупред",
     "болезн", "инфекц", "бешенств", "погиб", "убил", "истяз", "отстрел",
     "пострадав", "травм", "тяжёлые раны", "тяжелые раны", "его раны", "её раны",
-    "ее раны", "их раны", "ранен", "воспал", "голодн", "напал", "атаковал",
+    "ее раны", "их раны", "раненый", "раненая", "раненые", "ранено", "ранение",
+    "ранения", "воспал", "голодн", "напал", "атаковал",
     "опасн", "перевозки выросли",
 )
 MEDICAL_DISCLAIMER_KEYWORDS = (
@@ -106,6 +107,7 @@ def is_relevant(news_item):
     news_item["matched_topics"] = _unique([*species, category] if relevant else [])
     news_item["matched_species"] = species
     news_item["primary_species"] = primary_species or species
+    news_item["headline_species"] = headline_species
     news_item["editorial_signals"] = signals
     news_item["event_participants"] = []
     news_item["event_locations"] = []

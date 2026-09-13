@@ -66,6 +66,18 @@ def test_positive_animal_story_gets_warm_category():
     assert "#ДобрыеНовости" in format_post(story)
 
 
+def test_headline_cat_and_dog_receive_equal_channel_priority():
+    cat = item("Кот нашёл новый дом")
+    dog = item("Собака нашла новый дом")
+    fox = item("Лиса нашла новый дом")
+
+    for story in (cat, dog, fox):
+        assert is_relevant(story)
+
+    assert calculate_score(cat) == calculate_score(dog)
+    assert calculate_score(cat) > calculate_score(fox)
+
+
 def test_faunora_requires_a_positive_animal_centred_story():
     warning = item("Ветеринар предупредил о болезнях ежей")
     warning["source"] = "Faunora"

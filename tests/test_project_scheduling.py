@@ -97,3 +97,21 @@ def test_source_rotation_never_moves_regular_story_above_breaking_news():
     history = [{"source": "Ветеринария и жизнь — Питомцы"}]
 
     assert prefer_source_rotation([regular, breaking], history) == [breaking, regular]
+
+
+def test_source_rotation_keeps_cats_and_dogs_ahead_of_other_animals():
+    dog = story(
+        "Собака нашла новую семью",
+        source="Недавний источник",
+        editorial_priority="major_story",
+        headline_species=["dogs"],
+    )
+    wild = story(
+        "Лоси играют в лесу",
+        source="Новый источник",
+        editorial_priority="major_story",
+        headline_species=["other_animals"],
+    )
+    history = [{"source": "Недавний источник"}]
+
+    assert prefer_source_rotation([dog, wild], history) == [dog, wild]

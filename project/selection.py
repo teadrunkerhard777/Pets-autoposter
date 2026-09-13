@@ -51,10 +51,13 @@ def prefer_source_rotation(news_items, history):
             source_recency[source] = distance
 
     def rotation_key(item):
+        channel_core = bool(
+            {"cats", "dogs"}.intersection(item.get("headline_species", []))
+        )
         source = item.get("source")
         if source not in source_recency:
-            return (0, 0)
-        return (1, -source_recency[source])
+            return (not channel_core, 0, 0)
+        return (not channel_core, 1, -source_recency[source])
 
     return urgent + sorted(regular, key=rotation_key)
 

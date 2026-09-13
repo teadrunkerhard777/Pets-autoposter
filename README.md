@@ -1,12 +1,12 @@
 # Pets Autoposter
 
-Rule-based Telegram autoposter for a Russian-language channel about pets and animals. It collects free public material, selects kind and engaging animal-centred stories, and formats a concise attributed post.
+Rule-based Telegram autoposter for a Russian-language cats-and-dogs channel. It collects free public material, selects kind and engaging animal-centred stories, and formats a concise attributed post.
 
 ## Editorial scope
 
-- cats, dogs, and other domestic pets as the main characters;
+- cats and dogs as the primary characters and ranking priority;
 - rescues, adoption, reunions, friendship, funny discoveries, and good deeds;
-- occasional warm or fascinating stories about wild animals;
+- occasional warm or fascinating stories about other animals when no suitable cat or dog story is available;
 - fresh news and readable articles with strong source photography.
 
 The channel is not about officials, the pet industry, or routine veterinary warnings. It does not diagnose animals, prescribe treatment, promote breeding or sales, turn rumours into news, or use distressing material merely for attention.
@@ -36,8 +36,9 @@ specialist agendas do not fit the channel. ASPCA is English-language and too
 infrequent for the configured news window; unattended Blue Cross requests
 currently receive HTTP 403.
 
-Each run publishes at most one concise preview. Positive animal stories receive
-the highest editorial weight. Stories prefer the source that has not appeared recently, so
+Each run publishes at most one concise preview. Positive cat and dog stories
+receive the highest editorial weight. Source rotation happens only after this
+channel priority, so
 a one-item batch still rotates publications across the active feeds. The
 curated evergreen queue is retained for future experiments but is not connected
 to the active sources and has no reserved publication slot.

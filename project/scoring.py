@@ -7,7 +7,7 @@ CATEGORY_SCORES = {
     "evergreen_adoption_story": 6, "evergreen_breed": 4,
 }
 SIGNAL_SCORES = {"official": 2, "seasonal": 2, "practical": 2, "positive": 3}
-SPECIES_SCORES = {"cats": 2, "dogs": 1, "small_pets": 1, "other_animals": 1}
+SPECIES_SCORES = {"cats": 6, "dogs": 6, "small_pets": 1, "other_animals": 1}
 CONFIRMATION_BONUSES = {1: 0, 2: 1}
 
 
@@ -15,7 +15,10 @@ def calculate_score(news_item, now=None):
     """Rank already relevant material; never decide relevance here."""
 
     score = CATEGORY_SCORES.get(news_item.get("event_category"), 0)
-    score += sum(SPECIES_SCORES.get(species, 0) for species in news_item.get("matched_species", []))
+    score += sum(
+        SPECIES_SCORES.get(species, 0)
+        for species in news_item.get("headline_species", [])
+    )
     score += sum(SIGNAL_SCORES.get(signal, 0) for signal in news_item.get("editorial_signals", []))
     if news_item.get("needs_vet_disclaimer"):
         score += 1
