@@ -8,7 +8,11 @@ from project.filters import is_relevant
 from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
 from project.settings import MIN_PUBLICATION_SCORE
-from project.sources import SOURCES, SOURCE_IMAGE_EXTRACTORS
+from project.sources import (
+    SOURCES,
+    SOURCE_IMAGE_EXTRACTORS,
+    SOURCE_PUBLISHED_AT_EXTRACTORS,
+)
 from project.visuals import COVER_FILES, VISUAL_TYPES, cover_path_for
 
 
@@ -98,6 +102,40 @@ def test_faunora_rejects_official_warning_about_a_wild_animal():
     assert is_relevant(story) is False
     assert story["event_category"] is None
     assert story["needs_vet_disclaimer"] is False
+
+
+def test_pets_mail_uses_the_same_positive_story_gate():
+    happy = item("Пёс Ганнер дождался человека и снова обрёл дом")
+    happy["source"] = "Питомцы Mail"
+    medical = item("Ветеринар объяснил, как лечить болезни собак")
+    medical["source"] = "Питомцы Mail"
+
+    assert is_relevant(happy) is True
+    assert is_relevant(medical) is False
+
+
+def test_pets_mail_accepts_a_light_dog_event():
+    story = item("В Петербурге прошёл необыкновенный кросс для собак")
+    story["source"] = "Питомцы Mail"
+
+    assert is_relevant(story) is True
+
+
+def test_positive_sources_reject_war_context():
+    story = item("Военные на Запорожском направлении спасли собак")
+    story["source"] = "Faunora"
+
+    assert is_relevant(story) is False
+
+
+def test_administrator_does_not_match_minister_block_word():
+    story = item(
+        "Необыкновенный кросс для собак",
+        "Администратор площадки рассказал о весёлом соревновании.",
+    )
+    story["source"] = "Питомцы Mail"
+
+    assert is_relevant(story) is True
 
 
 def test_rospriut_rejects_official_events_without_a_kind_story():
@@ -245,6 +283,9 @@ def test_enabled_sources_are_only_verified_russian_feeds():
         "РосПриют",
     }
     assert queues == []
+    assert {source["name"] for source in enabled if source["type"] == "html"} == {
+        "Питомцы Mail",
+    }
     assert all(source["language"] == "ru" for source in enabled)
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
 
@@ -317,3 +358,15 @@ def test_rkf_logo_is_rejected_as_an_article_image():
     )
 
     assert SOURCE_IMAGE_EXTRACTORS["РКФ"](soup) is None
+
+
+def test_pets_mail_reads_exact_article_timestamp():
+    soup = BeautifulSoup(
+        '<meta property="article:published_time" '
+        'content="2026-09-04T09:00:00+03:00">',
+        "html.parser",
+    )
+
+    assert SOURCE_PUBLISHED_AT_EXTRACTORS["Питомцы Mail"](soup) == (
+        "2026-09-04T09:00:00+03:00"
+    )

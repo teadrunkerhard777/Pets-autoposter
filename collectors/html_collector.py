@@ -43,7 +43,11 @@ def collect_html(source):
     items = []
 
     for card in soup.select(source["item_selector"]):
-        title_node = card.select_one(source["title_selector"])
+        title_node = (
+            card
+            if source.get("title_from_item")
+            else card.select_one(source["title_selector"])
+        )
         # Some card selectors point to the anchor instead of containing one.
         if source.get("link_from_item"):
             link_node = card

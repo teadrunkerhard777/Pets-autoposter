@@ -103,6 +103,29 @@ def test_linked_item_href_uses_configured_base_url(monkeypatch):
     assert items[0]["url"] == "https://example.test/section/story"
 
 
+def test_linked_item_can_supply_its_own_title(monkeypatch):
+    response = Response(
+        b"""
+        <a data-qa='Link' href='/news/happy-dog/'>
+          Happy dog found a home
+        </a>
+        """
+    )
+    monkeypatch.setattr(
+        "collectors.html_collector.requests.get",
+        lambda *args, **kwargs: response,
+    )
+    source = linked_html_source(
+        item_selector='a[data-qa="Link"]',
+        title_selector="",
+        title_from_item=True,
+    )
+
+    items = collect_html(source)
+
+    assert items[0]["title"] == "Happy dog found a home"
+
+
 def test_linked_item_without_href_is_skipped(monkeypatch):
     response = Response(
         b"""

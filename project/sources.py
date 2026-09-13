@@ -9,6 +9,13 @@ def _extract_rkf_image(soup):
     blocked_names = ("/lgn.png", "/rkf-logo_rus.png")
     return None if image_url.casefold().endswith(blocked_names) else image_url or None
 
+
+def _extract_pets_mail_published_at(soup):
+    """Read the exact timezone-aware timestamp from a Pets Mail article."""
+
+    node = soup.select_one('meta[property="article:published_time"]')
+    return node.get("content", "").strip() if node else None
+
 SOURCES = [
     {
         "name": "ASPCA News",
@@ -78,6 +85,25 @@ SOURCES = [
         "trust": 0.85,
     },
     {
+        "name": "Питомцы Mail",
+        "type": "html",
+        "url": "https://pets.mail.ru/news/",
+        "base_url": "https://pets.mail.ru",
+        "enabled": True,
+        "limit": 30,
+        "item_selector": (
+            'a[data-qa="Link"][href^="/news/"]'
+            ':not([href="/news/"])'
+        ),
+        "title_selector": "",
+        "title_from_item": True,
+        "link_from_item": True,
+        "source_kind": "pet_media",
+        "language": "ru",
+        "retries": 2,
+        "trust": 0.90,
+    },
+    {
         "name": "РосПриют",
         "type": "rss",
         "url": "https://rospriut.ru/news/feed/",
@@ -110,5 +136,7 @@ SOURCES = [
 
 SOURCE_EXTRACTORS = {}
 SOURCE_IMAGE_EXTRACTORS = {"РКФ": _extract_rkf_image}
-SOURCE_PUBLISHED_AT_EXTRACTORS = {}
+SOURCE_PUBLISHED_AT_EXTRACTORS = {
+    "Питомцы Mail": _extract_pets_mail_published_at,
+}
 SOURCE_STOP_MARKERS = {}
