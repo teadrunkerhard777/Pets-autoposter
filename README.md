@@ -1,15 +1,15 @@
 # Pets Autoposter
 
-Rule-based Telegram autoposter for a Russian-language channel about cats and domestic pets. It collects free public animal-welfare material, selects relevant stories, and formats a concise attributed post.
+Rule-based Telegram autoposter for a Russian-language channel about pets and animals. It collects free public material, selects kind and engaging animal-centred stories, and formats a concise attributed post.
 
 ## Editorial scope
 
-- cats, dogs, and small domestic pets;
-- responsible ownership, behaviour, care, adoption, shelters, and animal welfare;
-- urgent safety notices from accountable sources;
-- fresh news and useful articles about everyday life with pets.
+- cats, dogs, and other domestic pets as the main characters;
+- rescues, adoption, reunions, friendship, funny discoveries, and good deeds;
+- occasional warm or fascinating stories about wild animals;
+- fresh news and readable articles with strong source photography.
 
-The channel does not diagnose animals, prescribe treatment, promote breeding or sales, or turn rumours into news. A material that signals an emergency or poisoning receives a clear instruction to contact a veterinary clinic.
+The channel is not about officials, the pet industry, or routine veterinary warnings. It does not diagnose animals, prescribe treatment, promote breeding or sales, turn rumours into news, or use distressing material merely for attention.
 
 ## Visual format
 
@@ -26,17 +26,18 @@ that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.
 
 ## Sources
 
-- «Ветеринария и жизнь — Питомцы» — health, care, and pet-industry reporting;
-- «РосПриют» — shelters, adoption, and animal-welfare events;
+- «Хорошие новости про животных» — a curated positive animal-news feed;
+- Faunora — frequent animal reporting, admitted only through a strict positive-story filter;
+- «РосПриют» — adoption and rescue stories, also admitted only through the positive-story filter.
 
-All active sources publish in Russian. РКФ, ASPCA, and Blue Cross remain
-registered but disabled: РКФ produced too many specialist announcements with
-few usable images, ASPCA is English-language and too infrequent for the
-configured news window, and unattended Blue Cross requests currently receive
-HTTP 403.
+All active sources publish in Russian. «Ветеринария и жизнь — Питомцы» and РКФ
+remain registered but disabled because their veterinary, industry, and
+specialist agendas do not fit the channel. ASPCA is English-language and too
+infrequent for the configured news window; unattended Blue Cross requests
+currently receive HTTP 403.
 
-Each run publishes at most one concise preview. Breaking safety information
-stays first. Other stories prefer the source that has not appeared recently, so
+Each run publishes at most one concise preview. Positive animal stories receive
+the highest editorial weight. Stories prefer the source that has not appeared recently, so
 a one-item batch still rotates publications across the active feeds. The
 curated evergreen queue is retained for future experiments but is not connected
 to the active sources and has no reserved publication slot.

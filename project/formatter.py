@@ -16,14 +16,16 @@ RUSSIAN_MONTHS = (
     "июля", "августа", "сентября", "октября", "ноября", "декабря",
 )
 CATEGORY_LABELS = {
+    "positive_story": "💛 ДОБРАЯ ИСТОРИЯ",
     "urgent_safety": "🚨 БЕЗОПАСНОСТЬ ПИТОМЦА", "animal_welfare": "🤍 ПОМОЩЬ ЖИВОТНЫМ",
-    "health": "🩺 ЗДОРОВЬЕ", "care": "🐾 УХОД ЗА ПИТОМЦЕМ", "pet_news": "🐾 ПИТОМЦЫ",
+    "health": "🩺 ЗДОРОВЬЕ", "care": "🐾 УХОД ЗА ПИТОМЦЕМ", "pet_news": "🐾 ЖИВОТНЫЕ",
     "evergreen_cat_fact": "😺 ФАКТ О КОШКАХ", "evergreen_pet_care": "🏠 ЗАБОТА О ПИТОМЦЕ",
     "evergreen_adoption_story": "🤍 ИСТОРИЯ ПРИЮТА", "evergreen_breed": "🐕 ПОРОДЫ И ХАРАКТЕРЫ",
 }
 CATEGORY_TAGS = {
+    "positive_story": "#ДобрыеНовости",
     "urgent_safety": "#БезопасностьПитомца", "animal_welfare": "#ПомощьЖивотным",
-    "health": "#ЗдоровьеПитомца", "care": "#УходЗаПитомцем", "pet_news": "#ДомашниеЖивотные",
+    "health": "#ЗдоровьеПитомца", "care": "#УходЗаПитомцем", "pet_news": "#МирЖивотных",
     "evergreen_cat_fact": "#Кошки", "evergreen_pet_care": "#УходЗаПитомцем",
     "evergreen_adoption_story": "#ВозьмиИзПриюта", "evergreen_breed": "#ДомашниеЖивотные",
 }

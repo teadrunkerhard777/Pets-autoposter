@@ -40,13 +40,71 @@ def test_filter_does_not_match_pet_keywords_inside_english_words():
         assert story["event_category"] is None
 
 
-def test_welfare_story_gets_meaningful_category_and_priority():
+def test_cat_keyword_does_not_match_inside_russian_words():
+    story = item("Лоси встретили собак, которых раньше не видели")
+
+    assert is_relevant(story) is True
+    assert story["matched_species"] == ["dogs"]
+
+
+def test_rescue_story_gets_meaningful_category_and_priority():
     story = item("Приют нашёл семьи для спасённых кошек")
 
     assert is_relevant(story) is True
-    assert story["event_category"] == "animal_welfare"
+    assert story["event_category"] == "positive_story"
     assert calculate_score(story) >= MIN_PUBLICATION_SCORE
     assert story["editorial_priority"] == "major_story"
+
+
+def test_positive_animal_story_gets_warm_category():
+    story = item("Спасённый котёнок нашёл дом и новую семью")
+
+    assert is_relevant(story) is True
+    assert story["event_category"] == "positive_story"
+    assert story["editorial_signals"] == ["positive"]
+    assert "💛 ДОБРАЯ ИСТОРИЯ" in format_post(story)
+    assert "#ДобрыеНовости" in format_post(story)
+
+
+def test_faunora_requires_a_positive_animal_centred_story():
+    warning = item("Ветеринар предупредил о болезнях ежей")
+    warning["source"] = "Faunora"
+    rescue = item("Четырёх котят спасли и нашли им новый дом")
+    rescue["source"] = "Faunora"
+
+    assert is_relevant(warning) is False
+    assert is_relevant(rescue) is True
+
+
+def test_rospriut_rejects_official_events_without_a_kind_story():
+    event = item("Чиновники обсудили питомцев на отраслевом форуме")
+    event["source"] = "РосПриют"
+
+    assert is_relevant(event) is False
+
+
+def test_curated_positive_source_can_publish_an_unusual_wild_animal_story():
+    story = item("Лисёнок впервые играет с новой игрушкой")
+    story["source"] = "Хорошие новости про животных"
+
+    assert is_relevant(story) is True
+    assert story["matched_species"] == ["other_animals"]
+
+
+def test_positive_sources_reject_distressing_headlines():
+    for source in ("Faunora", "Хорошие новости про животных", "РосПриют"):
+        story = item("Спасённый лисёнок получил тяжёлые травмы и раны")
+        story["source"] = source
+
+        assert is_relevant(story) is False
+
+
+def test_positive_sources_reject_a_gentle_title_with_distressing_body():
+    story = item("Двух собак спасли после необычной встречи")
+    story["source"] = "Хорошие новости про животных"
+    story["article_text"] = "Животные страдали от голода, их раны воспалились."
+
+    assert is_relevant(story) is False
 
 
 def test_urgent_veterinary_story_has_disclaimer_without_giving_treatment():
@@ -158,12 +216,22 @@ def test_enabled_sources_are_only_verified_russian_feeds():
     queues = [source for source in enabled if source["type"] == "static"]
 
     assert {source["name"] for source in feeds} == {
-        "Ветеринария и жизнь — Питомцы",
+        "Хорошие новости про животных",
+        "Faunora",
         "РосПриют",
     }
     assert queues == []
     assert all(source["language"] == "ru" for source in enabled)
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
+
+
+def test_veterinary_trade_feed_is_disabled_after_editorial_review():
+    source = next(
+        source for source in SOURCES
+        if source["name"] == "Ветеринария и жизнь — Питомцы"
+    )
+
+    assert source["enabled"] is False
 
 
 def test_rkf_is_registered_but_disabled_after_editorial_review():

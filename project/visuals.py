@@ -18,7 +18,7 @@ def visual_type_for(news_item):
     category = news_item.get("event_category")
     if category == "urgent_safety":
         return "SAFETY"
-    if category == "animal_welfare" or category == "evergreen_adoption_story":
+    if category in {"positive_story", "animal_welfare", "evergreen_adoption_story"}:
         return "WELFARE"
     if category in {"health", "care", "evergreen_pet_care"}:
         return "CARE"

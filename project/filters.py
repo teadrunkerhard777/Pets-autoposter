@@ -8,15 +8,24 @@ from project.visuals import cover_path_for, visual_type_for
 PET_KEYWORDS = (
     "cat", "cats", "kitten", "kittens", "feline", "dog", "dogs",
     "puppy", "puppies", "pet", "pets", "animal welfare", "adoption",
-    "shelter", "rescue", "veterinary", "vet", "кошка", "кошки", "кошек", "кошкой", "кот", "котён",
+    "shelter", "rescue", "veterinary", "vet", "кошка", "кошки", "кошек", "кошкой", "кот", "кота", "коту", "котом", "коте", "коты", "котов", "котён", "котят",
     "собак", "щен", "питом", "приют", "животн", "ветеринар",
+    "лиса", "лисы", "лисён", "волк", "еж", "ёж", "енот", "выдр", "нерп",
+    "тюлен", "пингвин", "медвед", "лошад", "ослик", "белк", "заяц", "сова", "совы", "сову", "совой",
 )
 SPECIES_KEYWORDS = {
-    "cats": ("cat", "cats", "kitten", "kittens", "feline", "кошка", "кошки", "кошек", "кошкой", "кот", "котён"),
+    "cats": ("cat", "cats", "kitten", "kittens", "feline", "кошка", "кошки", "кошек", "кошкой", "кот", "кота", "коту", "котом", "коте", "коты", "котов", "котён", "котят"),
     "dogs": ("dog", "dogs", "puppy", "puppies", "canine", "собак", "щен"),
     "small_pets": ("rabbit", "hamster", "guinea pig", "parrot", "bird", "рыбк", "кролик", "хомяк", "попуг"),
+    "other_animals": (
+        "fox", "wolf", "hedgehog", "raccoon", "otter", "seal", "penguin",
+        "horse", "donkey", "лиса", "лисы", "лисён", "волк", "еж", "ёж",
+        "енот", "выдр", "нерп", "тюлен", "пингвин", "медвед", "лошад",
+        "ослик", "белк", "заяц", "сова", "совы", "сову", "совой",
+    ),
 }
 EVENT_CATEGORY_KEYWORDS = (
+    ("positive_story", ("спас", "обрёл дом", "обрела дом", "обрели дом", "нашёл дом", "нашла дом", "нашли дом", "новая семья", "подруж", "воссоедини", "счастлив", "добрая история", "трогательн")),
     ("urgent_safety", ("recall", "outbreak", "warning", "poison", "toxic", "отзыв", "вспышк", "предупрежд", "отрав", "токсич")),
     ("animal_welfare", ("rescue", "shelter", "adoption", "cruelty", "приют", "спас", "пристро", "жесток")),
     ("health", ("health", "disease", "veterinary", "vet", "здоровье", "заболев", "болезн", "инфекц", "диагност", "лечен", "ветеринар")),
@@ -26,6 +35,7 @@ EDITORIAL_SIGNAL_KEYWORDS = {
     "official": ("official", "confirmed", "announced", "официаль", "подтвержд"),
     "seasonal": ("summer", "winter", "holiday", "seasonal", "летн", "зимн", "праздник", "сезон"),
     "practical": ("how to", "tips", "guide", "checklist", "совет", "как ", "памятк"),
+    "positive": ("спас", "обрёл дом", "обрела дом", "нашёл дом", "нашла дом", "нашли дом", "подруж", "счастлив", "трогательн", "забавн", "милый", "милое", "необычн"),
 }
 EVERGREEN_CONTENT_TYPES = {"cat_fact", "pet_care", "adoption_story", "breed"}
 TRUSTED_PET_SOURCES = {
@@ -34,7 +44,25 @@ TRUSTED_PET_SOURCES = {
     "Ветеринария и жизнь — Питомцы",
     "РосПриют",
     "РКФ",
+    "Хорошие новости про животных",
+    "Faunora",
 }
+CURATED_POSITIVE_SOURCES = {"Хорошие новости про животных"}
+STRICT_POSITIVE_SOURCES = {"Faunora", "РосПриют"}
+POSITIVE_STORY_KEYWORDS = (
+    "спас", "помог", "обрёл дом", "обрела дом", "обрели дом", "нашёл дом",
+    "нашла дом", "нашли дом", "новая семья", "пристро", "усынов", "взяли домой",
+    "подруж", "воссоедини", "вернул", "счастлив", "трогательн", "добрая история",
+    "забавн", "милый", "милое", "необычн", "удивительн", "играет", "дружба",
+)
+EDITORIAL_MISMATCH_KEYWORDS = (
+    "чиновник", "министр", "ведомств", "законопроект", "конференц", "совещан",
+    "форум", "рынок", "маркировк", "ветеринар предупред", "ветврач предупред",
+    "болезн", "инфекц", "бешенств", "погиб", "убил", "истяз", "отстрел",
+    "пострадав", "травм", "тяжёлые раны", "тяжелые раны", "его раны", "её раны",
+    "ее раны", "их раны", "ранен", "воспал", "голодн", "напал", "атаковал",
+    "опасн", "перевозки выросли",
+)
 MEDICAL_DISCLAIMER_KEYWORDS = (
     "emergency", "urgent", "poison", "toxic", "отрав", "токсич",
     "экстренн", "срочн",
@@ -53,9 +81,25 @@ def is_relevant(news_item):
         _item_text(news_item, ("title", "description")),
         SPECIES_KEYWORDS,
     )
+    headline_species = _matches_by_name(
+        _item_text(news_item, ("title",)),
+        SPECIES_KEYWORDS,
+    )
     relevant = is_evergreen or bool(species) or (
         news_item.get("source") in TRUSTED_PET_SOURCES and _contains_any(text, PET_KEYWORDS)
     )
+    source = news_item.get("source")
+    if relevant and source in STRICT_POSITIVE_SOURCES:
+        relevant = (
+            bool(headline_species)
+            and _contains_any(text, POSITIVE_STORY_KEYWORDS)
+            and not _contains_any(text, EDITORIAL_MISMATCH_KEYWORDS)
+        )
+    elif relevant and source in CURATED_POSITIVE_SOURCES:
+        relevant = (
+            (bool(species) or _contains_any(text, PET_KEYWORDS))
+            and not _contains_any(text, EDITORIAL_MISMATCH_KEYWORDS)
+        )
     category = f"evergreen_{requested_type}" if is_evergreen else _event_category(text) if relevant else None
     signals = _matches_by_name(text, EDITORIAL_SIGNAL_KEYWORDS) if relevant else []
 
@@ -86,7 +130,7 @@ def _contains_any(text, keywords):
 
 
 def _contains_keyword(text, keyword):
-    if keyword.isascii():
+    if keyword.isascii() or keyword in {"кот", "еж", "ёж"}:
         return re.search(rf"(?<!\w){re.escape(keyword)}(?!\w)", text) is not None
     return keyword in text
 
