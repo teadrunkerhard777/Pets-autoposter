@@ -160,11 +160,17 @@ def test_enabled_sources_are_only_verified_russian_feeds():
     assert {source["name"] for source in feeds} == {
         "Ветеринария и жизнь — Питомцы",
         "РосПриют",
-        "РКФ",
     }
     assert queues == []
     assert all(source["language"] == "ru" for source in enabled)
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
+
+
+def test_rkf_is_registered_but_disabled_after_editorial_review():
+    rkf = next(source for source in SOURCES if source["name"] == "РКФ")
+
+    assert rkf["type"] == "rss"
+    assert rkf["enabled"] is False
 
 
 def test_evergreen_queue_has_attributed_dated_direct_items():

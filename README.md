@@ -28,11 +28,12 @@ that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.
 
 - «Ветеринария и жизнь — Питомцы» — health, care, and pet-industry reporting;
 - «РосПриют» — shelters, adoption, and animal-welfare events;
-- РКФ — dogs, responsible ownership, and canine events.
 
-All active sources publish in Russian. ASPCA and Blue Cross remain registered
-but disabled: ASPCA is English-language and too infrequent for the configured
-news window, while unattended Blue Cross requests currently receive HTTP 403.
+All active sources publish in Russian. РКФ, ASPCA, and Blue Cross remain
+registered but disabled: РКФ produced too many specialist announcements with
+few usable images, ASPCA is English-language and too infrequent for the
+configured news window, and unattended Blue Cross requests currently receive
+HTTP 403.
 
 Each run publishes at most one concise preview. Breaking safety information
 stays first. Other stories prefer the source that has not appeared recently, so

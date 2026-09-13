@@ -66,7 +66,9 @@ SOURCES = [
         "name": "РКФ",
         "type": "rss",
         "url": "https://rkf.org.ru/category/novosti/feed/",
-        "enabled": True,
+        # Disabled after live evaluation: the feed is dominated by corporate
+        # and specialist event announcements and rarely exposes article art.
+        "enabled": False,
         "limit": 20,
         "use_feed_content": True,
         "feed_stop_markers": ("Сообщение ",),
