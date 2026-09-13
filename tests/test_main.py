@@ -35,15 +35,42 @@ def test_one_html_request_uses_source_config_for_text_and_image(monkeypatch):
     assert item["image_url"] == "https://example.test/photo.jpg"
 
 
-def test_preloaded_article_data_skips_http(monkeypatch):
+def test_preloaded_article_data_skips_http_when_image_is_also_present(monkeypatch):
     monkeypatch.setattr("main.fetch_article_html", lambda url: pytest.fail("unexpected request"))
     item = {
         "url": "https://example.test/story",
         "article_text": "Already loaded",
+        "image_url": "https://example.test/image.jpg",
+    }
+
+    load_article_data([item])
+
+
+def test_preloaded_feed_text_defers_missing_image_until_selection(monkeypatch):
+    monkeypatch.setattr("main.fetch_article_html", lambda url: pytest.fail("unexpected request"))
+    item = {
+        "url": "https://example.test/story",
+        "article_text": "Already loaded from RSS",
         "image_url": None,
     }
 
     load_article_data([item])
+
+
+def test_preloaded_feed_text_fetches_missing_article_image(monkeypatch):
+    html = "<main></main><meta property='og:image' content='/photo.jpg'>"
+    monkeypatch.setattr("main.fetch_article_html", lambda url, source_config=None: html)
+    item = {
+        "url": "https://example.test/story",
+        "source": "Example",
+        "article_text": "Text already extracted from RSS",
+        "image_url": None,
+    }
+
+    load_article_data([item], sources=[], require_image=True)
+
+    assert item["article_text"] == "Text already extracted from RSS"
+    assert item["image_url"] == "https://example.test/photo.jpg"
 
 
 def test_dry_run_diagnostics_show_rank_confirmation_and_selection(capsys):
@@ -94,7 +121,7 @@ def test_run_applies_editorial_selection_after_event_dedup(monkeypatch):
         lambda items, minimum: items,
     )
     monkeypatch.setattr(main, "sort_by_score", lambda items: items)
-    monkeypatch.setattr(main, "load_article_data", lambda items: None)
+    monkeypatch.setattr(main, "load_article_data", lambda items, **kwargs: None)
 
     def deduplicate(items, event_settings, debug=False):
         stages.append("dedup")

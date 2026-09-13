@@ -205,3 +205,14 @@ def test_image_metadata_prefers_open_graph_and_resolves_relative_url():
 def test_image_metadata_falls_back_to_twitter():
     html = "<meta name='twitter:image' content='https://cdn.test/image.jpg'>"
     assert extract_article_image_url(html, "https://news.test") == "https://cdn.test/image.jpg"
+
+
+def test_source_image_extractor_can_explicitly_reject_generic_metadata():
+    html = "<meta property='og:image' content='https://cdn.test/site-logo.png'>"
+
+    assert extract_article_image_url(
+        html,
+        "https://news.test/story",
+        source="Logo Source",
+        source_extractors={"Logo Source": lambda soup: None},
+    ) is None

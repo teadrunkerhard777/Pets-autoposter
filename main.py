@@ -42,7 +42,11 @@ from project.filters import is_relevant
 from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
 from project.scheduling import filter_time_eligible
-from project.selection import select_editorial_mix, sort_by_editorial_priority
+from project.selection import (
+    prefer_source_rotation,
+    select_editorial_mix,
+    sort_by_editorial_priority,
+)
 from project.sources import (
     SOURCE_EXTRACTORS,
     SOURCE_IMAGE_EXTRACTORS,
@@ -95,15 +99,20 @@ def collect_enabled_news(sources=SOURCES):
     return all_news
 
 
-def load_article_data(news_items, sources=None):
+def load_article_data(news_items, sources=None, require_image=False):
     """Fetch each page once, then derive text and image from the same HTML."""
 
     source_configs = _source_configs_by_name(sources)
 
     for item in news_items:
-        if "article_text" in item and "image_url" in item:
+        if item.get("_article_page_loaded"):
+            continue
+        if item.get("article_text") and not require_image:
+            continue
+        if item.get("article_text") and item.get("image_url"):
             continue
 
+        feed_article_text = item.get("article_text") or ""
         item.setdefault("article_text", "")
         item.setdefault("image_url", None)
 
@@ -113,16 +122,18 @@ def load_article_data(news_items, sources=None):
                 item["url"],
                 source_config=source_config,
             )
+            item["_article_page_loaded"] = True
             extracted = extract_article_text(
                 html,
                 source=item.get("source"),
                 source_extractors=SOURCE_EXTRACTORS,
             )
-            item["article_text"] = clean_article_text(
+            article_text = clean_article_text(
                 extracted,
                 source=item.get("source"),
                 source_stop_markers=SOURCE_STOP_MARKERS,
             )
+            item["article_text"] = article_text or feed_article_text
             item["image_url"] = extract_article_image_url(
                 html,
                 item["url"],
@@ -344,6 +355,7 @@ def run():
             item for item in unique_news
             if not is_published(item, history, EVENT_DEDUP_SETTINGS)
         ]
+    new_news = prefer_source_rotation(new_news, history)
 
     selected_news = select_editorial_mix(
         new_news,
@@ -351,6 +363,9 @@ def run():
         DIVERSITY_SETTINGS,
         EVERGREEN_SLOTS_PER_RUN,
     )
+    # Full RSS text is enough to rank candidates. Open only selected pages that
+    # still need an image instead of requesting every article on every run.
+    load_article_data(selected_news, require_image=True)
     print(f"Collected: {len(all_news)}")
     print(f"Relevant before time filter: {len(relevant_news)}")
     print(f"Time eligible after relevance: {len(time_eligible_news)}")

@@ -35,8 +35,10 @@ but disabled: ASPCA is English-language and too infrequent for the configured
 news window, while unattended Blue Cross requests currently receive HTTP 403.
 
 Each run publishes at most one concise preview. Breaking safety information
-stays first. The curated evergreen queue is retained for future experiments but
-is not connected to the active sources and has no reserved publication slot.
+stays first. Other stories prefer the source that has not appeared recently, so
+a one-item batch still rotates publications across the active feeds. The
+curated evergreen queue is retained for future experiments but is not connected
+to the active sources and has no reserved publication slot.
 
 ## Quick start
 

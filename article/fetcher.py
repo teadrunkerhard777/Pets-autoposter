@@ -100,8 +100,7 @@ def extract_article_image_url(
 
     if extractor is not None:
         image_url = extractor(soup)
-        if image_url:
-            return urljoin(page_url, image_url)
+        return urljoin(page_url, image_url) if image_url else None
 
     selectors = (
         ('meta[property="og:image"]', "content"),

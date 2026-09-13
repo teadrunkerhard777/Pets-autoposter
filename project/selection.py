@@ -30,6 +30,35 @@ def sort_by_editorial_priority(news_items):
     )
 
 
+def prefer_source_rotation(news_items, history):
+    """Prefer the least recently published source after urgent stories."""
+
+    urgent = [
+        item for item in news_items
+        if item.get("editorial_priority") in PRIORITY_NEWS
+    ]
+    regular = [
+        item for item in news_items
+        if item.get("editorial_priority") not in PRIORITY_NEWS
+    ]
+    source_recency = {}
+
+    for distance, entry in enumerate(reversed(history)):
+        if not isinstance(entry, dict):
+            continue
+        source = entry.get("source")
+        if source and source not in source_recency:
+            source_recency[source] = distance
+
+    def rotation_key(item):
+        source = item.get("source")
+        if source not in source_recency:
+            return (0, 0)
+        return (1, -source_recency[source])
+
+    return urgent + sorted(regular, key=rotation_key)
+
+
 def select_editorial_mix(
     news_items,
     limit,

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from project.filters import is_relevant
 from project.scoring import calculate_score
 from project.scheduling import filter_time_eligible
-from project.selection import select_editorial_mix
+from project.selection import prefer_source_rotation, select_editorial_mix
 from project.settings import EVERGREEN_SLOTS_PER_RUN, MAX_NEWS_PER_RUN
 
 
@@ -69,3 +69,31 @@ def test_editorial_mix_prefers_distinct_sources_after_breaking_news():
     )
 
     assert selected == [breaking, other_source]
+
+
+def test_source_rotation_prefers_unseen_then_least_recent_source():
+    source_a = story("Статья A", source="Источник A", editorial_priority="major_story")
+    source_b = story("Статья B", source="Источник B", editorial_priority="major_story")
+    source_c = story("Статья C", source="Источник C", editorial_priority="standard")
+    history = [
+        {"source": "Источник B"},
+        {"source": "Источник A"},
+    ]
+
+    assert prefer_source_rotation([source_a, source_b, source_c], history) == [
+        source_c,
+        source_b,
+        source_a,
+    ]
+
+
+def test_source_rotation_never_moves_regular_story_above_breaking_news():
+    regular = story("Статья РКФ", source="РКФ", editorial_priority="standard")
+    breaking = story(
+        "Срочное предупреждение",
+        source="Ветеринария и жизнь — Питомцы",
+        editorial_priority="breaking",
+    )
+    history = [{"source": "Ветеринария и жизнь — Питомцы"}]
+
+    assert prefer_source_rotation([regular, breaking], history) == [breaking, regular]

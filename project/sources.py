@@ -1,5 +1,14 @@
 """Free, verified sources for the cats and pets channel."""
 
+
+def _extract_rkf_image(soup):
+    """Reject RKF's site-logo featured image instead of publishing branding."""
+
+    image = soup.select_one("article img.wp-post-image")
+    image_url = image.get("src", "").strip() if image else ""
+    blocked_names = ("/lgn.png", "/rkf-logo_rus.png")
+    return None if image_url.casefold().endswith(blocked_names) else image_url or None
+
 SOURCES = [
     {
         "name": "ASPCA News",
@@ -69,6 +78,6 @@ SOURCES = [
 ]
 
 SOURCE_EXTRACTORS = {}
-SOURCE_IMAGE_EXTRACTORS = {}
+SOURCE_IMAGE_EXTRACTORS = {"РКФ": _extract_rkf_image}
 SOURCE_PUBLISHED_AT_EXTRACTORS = {}
 SOURCE_STOP_MARKERS = {}

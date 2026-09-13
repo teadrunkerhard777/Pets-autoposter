@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 
+from bs4 import BeautifulSoup
+
 from processing.filters import add_scores, filter_relevant, filter_by_minimum_score
 from project.content.evergreen import EVERGREEN_SOURCES
 from project.filters import is_relevant
 from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
 from project.settings import MIN_PUBLICATION_SCORE
-from project.sources import SOURCES
+from project.sources import SOURCES, SOURCE_IMAGE_EXTRACTORS
 from project.visuals import COVER_FILES, VISUAL_TYPES, cover_path_for
 
 
@@ -207,3 +209,13 @@ def test_cover_choice_is_stable_for_the_same_article():
     assert cover_path_for("NEWS", "https://example.test/story") == cover_path_for(
         "NEWS", "https://example.test/story",
     )
+
+
+def test_rkf_logo_is_rejected_as_an_article_image():
+    soup = BeautifulSoup(
+        '<article><img class="wp-post-image" '
+        'src="https://rkf.org.ru/wp-content/uploads/2023/06/lgn.png"></article>',
+        "html.parser",
+    )
+
+    assert SOURCE_IMAGE_EXTRACTORS["РКФ"](soup) is None

@@ -10,3 +10,7 @@ During `DRY_RUN`, each selected remote image is downloaded once only for
 validation and immediately removed. A missing or rejected remote image falls
 back to the category cover; if that cover is unavailable, the post falls back
 to text.
+
+When an RSS entry contains article text but no image, only the selected article
+page is fetched to recover its lead image. Known site logos are rejected by an
+exact source-specific rule and fall back to a project cover.
