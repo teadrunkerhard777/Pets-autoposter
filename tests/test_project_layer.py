@@ -88,6 +88,18 @@ def test_faunora_requires_a_positive_animal_centred_story():
     assert is_relevant(rescue) is True
 
 
+def test_faunora_rejects_official_warning_about_a_wild_animal():
+    story = item(
+        "В Нягани полиция отпугнула медведя: глава города предупредил о причинах",
+        "Жителям рекомендовали сообщать о встрече с хищником в 112.",
+    )
+    story["source"] = "Faunora"
+
+    assert is_relevant(story) is False
+    assert story["event_category"] is None
+    assert story["needs_vet_disclaimer"] is False
+
+
 def test_rospriut_rejects_official_events_without_a_kind_story():
     event = item("Чиновники обсудили питомцев на отраслевом форуме")
     event["source"] = "РосПриют"
