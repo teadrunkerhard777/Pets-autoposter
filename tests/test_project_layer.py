@@ -153,6 +153,32 @@ def test_curated_positive_source_can_publish_an_unusual_wild_animal_story():
     assert story["matched_species"] == ["other_animals"]
 
 
+def test_photo_story_source_uses_body_species_when_title_is_a_pet_name():
+    story = item("Люпин ловит утро", "Щенок мчится навстречу новому дню")
+    story["source"] = "Щенячий Ангел — Фото дня"
+
+    assert is_relevant(story) is True
+    assert story["headline_species"] == []
+    assert story["channel_species"] == ["dogs"]
+
+
+def test_photo_story_source_rejects_a_sponsor_post_without_an_animal_hero():
+    story = item(
+        "Спасибо за подарки от Добролап",
+        "В приют приехала доставка подарков в рамках благотворительной акции.",
+    )
+    story["source"] = "Щенячий Ангел — Фото дня"
+
+    assert is_relevant(story) is False
+
+
+def test_positive_source_rejects_poisoning_even_when_an_animal_was_saved():
+    story = item("Неизвестный отравил кота, которого затем спасли")
+    story["source"] = "Faunora"
+
+    assert is_relevant(story) is False
+
+
 def test_positive_sources_reject_distressing_headlines():
     for source in ("Faunora", "Хорошие новости про животных", "РосПриют"):
         story = item("Спасённый лисёнок получил тяжёлые травмы и раны")
@@ -233,6 +259,14 @@ def test_formatter_escapes_html_and_caption_stays_limited():
     assert len(post) < 2000
 
 
+def test_formatter_uses_editorial_timezone_for_calendar_date():
+    story = item("Кошка нашла дом")
+    story["published_at"] = datetime(2026, 9, 10, 23, 31, tzinfo=timezone.utc)
+    is_relevant(story)
+
+    assert "📅 11 сентября 2026" in format_post(story)
+
+
 def test_curated_checklist_gets_scannable_bullets():
     story = item("Домашняя памятка", "Проверьте воду. Уберите лекарства.")
     story.update(
@@ -280,6 +314,7 @@ def test_enabled_sources_are_only_verified_russian_feeds():
     assert {source["name"] for source in feeds} == {
         "Хорошие новости про животных",
         "Faunora",
+        "Щенячий Ангел — Фото дня",
         "РосПриют",
     }
     assert queues == []

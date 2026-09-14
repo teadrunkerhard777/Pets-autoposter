@@ -27,6 +27,7 @@ that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.
 ## Sources
 
 - «Хорошие новости про животных» — a curated positive animal-news feed;
+- «Щенячий Ангел — Фото дня» — short, frequently updated shelter stories with original pet photos;
 - «Питомцы Mail» — fresh cat-and-dog reporting with large article images, admitted through the positive-story filter;
 - Faunora — frequent animal reporting, admitted only through a strict positive-story filter;
 - «РосПриют» — adoption and rescue stories, also admitted only through the positive-story filter.

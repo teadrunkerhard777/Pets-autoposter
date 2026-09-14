@@ -71,6 +71,23 @@ SOURCES = [
         "trust": 0.95,
     },
     {
+        "name": "Щенячий Ангел — Фото дня",
+        "type": "rss",
+        "url": "https://puppyangel911.ru/category/foto-dnya/feed/",
+        "enabled": True,
+        "limit": 20,
+        "use_feed_content": True,
+        # This feed mixes article art, emoji, and social icons. The selected
+        # article page has a reliable Open Graph image, so use that instead.
+        "ignore_feed_images": True,
+        "feed_stop_markers": ("Чтобы узнавать", "Сообщение ", "Поделиться"),
+        "source_kind": "positive_shelter_photo_story",
+        "language": "ru",
+        "feed_timeout": 15,
+        "feed_retries": 2,
+        "trust": 0.90,
+    },
+    {
         "name": "Faunora",
         "type": "rss",
         "url": "https://faunora.ru/rss.xml",

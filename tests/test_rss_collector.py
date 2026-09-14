@@ -144,6 +144,58 @@ def test_rss_collector_leaves_feed_content_opt_in(monkeypatch):
     assert "image_url" not in item
 
 
+def test_rss_collector_can_skip_emoji_images_for_one_source(monkeypatch):
+    rss = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0"><channel><item>
+      <title>Happy puppy</title>
+      <link>https://example.test/story</link>
+      <pubDate>Sat, 05 Sep 2026 10:32:00 +0300</pubDate>
+      <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/">
+        <![CDATA[
+          <p><img src="https://s.w.org/emoji/dog.png">A puppy plays.</p>
+          <p><img src="https://example.test/uploads/puppy.jpg"></p>
+        ]]>
+      </content:encoded>
+    </item></channel></rss>"""
+    parsed = feedparser.parse(rss)
+    monkeypatch.setattr(
+        "collectors.rss_collector.feedparser.parse",
+        lambda url: parsed,
+    )
+
+    item = collect_rss(
+        source(
+            use_feed_content=True,
+            feed_image_selector='img[src*="/uploads/"]',
+        )
+    )[0]
+
+    assert item["image_url"] == "https://example.test/uploads/puppy.jpg"
+
+
+def test_rss_collector_can_defer_unreliable_images_to_article_page(monkeypatch):
+    rss = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0"><channel><item>
+      <title>Happy puppy</title>
+      <link>https://example.test/story</link>
+      <pubDate>Sat, 05 Sep 2026 10:32:00 +0300</pubDate>
+      <content:encoded xmlns:content="http://purl.org/rss/1.0/modules/content/">
+        <![CDATA[<p><img src="https://example.test/social-icon.png">A puppy plays.</p>]]>
+      </content:encoded>
+    </item></channel></rss>"""
+    parsed = feedparser.parse(rss)
+    monkeypatch.setattr(
+        "collectors.rss_collector.feedparser.parse",
+        lambda url: parsed,
+    )
+
+    item = collect_rss(
+        source(use_feed_content=True, ignore_feed_images=True)
+    )[0]
+
+    assert item["image_url"] is None
+
+
 def test_full_feed_content_does_not_use_article_url_as_missing_image(monkeypatch):
     parsed = feedparser.parse(RSS)
     monkeypatch.setattr(

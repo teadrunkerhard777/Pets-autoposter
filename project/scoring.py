@@ -17,7 +17,7 @@ def calculate_score(news_item, now=None):
     score = CATEGORY_SCORES.get(news_item.get("event_category"), 0)
     score += sum(
         SPECIES_SCORES.get(species, 0)
-        for species in news_item.get("headline_species", [])
+        for species in news_item.get("channel_species", news_item.get("headline_species", []))
     )
     score += sum(SIGNAL_SCORES.get(signal, 0) for signal in news_item.get("editorial_signals", []))
     if news_item.get("needs_vet_disclaimer"):

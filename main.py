@@ -133,7 +133,10 @@ def load_article_data(news_items, sources=None, require_image=False):
                 source=item.get("source"),
                 source_stop_markers=SOURCE_STOP_MARKERS,
             )
-            item["article_text"] = article_text or feed_article_text
+            # A full RSS body is already the source's clean article payload.
+            # Fetching the selected page for a missing image must not replace
+            # it with navigation or footer text from the website.
+            item["article_text"] = feed_article_text or article_text
             item["image_url"] = extract_article_image_url(
                 html,
                 item["url"],

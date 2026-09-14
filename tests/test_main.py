@@ -58,7 +58,10 @@ def test_preloaded_feed_text_defers_missing_image_until_selection(monkeypatch):
 
 
 def test_preloaded_feed_text_fetches_missing_article_image(monkeypatch):
-    html = "<main></main><meta property='og:image' content='/photo.jpg'>"
+    html = (
+        "<main><p>Website navigation and footer</p></main>"
+        "<meta property='og:image' content='/photo.jpg'>"
+    )
     monkeypatch.setattr("main.fetch_article_html", lambda url, source_config=None: html)
     item = {
         "url": "https://example.test/story",

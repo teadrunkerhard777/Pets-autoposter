@@ -52,7 +52,9 @@ def prefer_source_rotation(news_items, history):
 
     def rotation_key(item):
         channel_core = bool(
-            {"cats", "dogs"}.intersection(item.get("headline_species", []))
+            {"cats", "dogs"}.intersection(
+                item.get("channel_species", item.get("headline_species", []))
+            )
         )
         source = item.get("source")
         if source not in source_recency:

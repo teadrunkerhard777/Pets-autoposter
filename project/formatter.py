@@ -5,6 +5,7 @@ from html import escape
 import re
 
 from generation.text import fit_text_to_html_limit
+from project.scheduling import EDITORIAL_TIMEZONE
 
 
 MESSAGE_LIMIT = 4000
@@ -104,7 +105,7 @@ def _structured_body(value, presentation_format):
 
 def _format_date(value, date_value=None):
     if isinstance(value, datetime) and value.tzinfo:
-        parsed_date = value.date()
+        parsed_date = value.astimezone(EDITORIAL_TIMEZONE).date()
     else:
         try:
             parsed_date = date.fromisoformat(date_value)

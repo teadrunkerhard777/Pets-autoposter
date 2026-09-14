@@ -51,7 +51,11 @@ TRUSTED_PET_SOURCES = {
     "Хорошие новости про животных",
     "Faunora",
 }
-CURATED_POSITIVE_SOURCES = {"Хорошие новости про животных"}
+CURATED_POSITIVE_SOURCES = {
+    "Хорошие новости про животных",
+    "Щенячий Ангел — Фото дня",
+}
+BODY_LED_CORE_SOURCES = {"Щенячий Ангел — Фото дня"}
 STRICT_POSITIVE_SOURCES = {"Faunora", "Питомцы Mail", "РосПриют"}
 POSITIVE_STORY_KEYWORDS = (
     "спас", "помог", "обрёл дом", "обрела дом", "обрели дом", "нашёл дом",
@@ -67,12 +71,14 @@ EDITORIAL_MISMATCH_KEYWORDS = (
     "глава города", "глава района", "администрация города", "полиция", "мчс",
     "112", "форум", "рынок", "маркировк", "предупред", "отпуг", "хищник",
     "военн", "боев", "фронт", "запорож", "спецоперац",
+    "подарки от", "доставка подарков", "благотворительная акция", "благотворительной акции",
+    "учебно-кинологичес",
     "ветеринар предупред", "ветврач предупред",
     "болезн", "инфекц", "бешенств", "погиб", "убил", "истяз", "отстрел",
     "пострадав", "травм", "тяжёлые раны", "тяжелые раны", "его раны", "её раны",
     "ее раны", "их раны", "раненый", "раненая", "раненые", "ранено", "ранение",
     "ранения", "воспал", "голодн", "напал", "атаковал",
-    "опасн", "перевозки выросли",
+    "опасн", "отрав", "перевозки выросли",
 )
 MEDICAL_DISCLAIMER_KEYWORDS = (
     "emergency", "urgent", "poison", "toxic", "отрав", "токсич",
@@ -118,6 +124,10 @@ def is_relevant(news_item):
     news_item["matched_species"] = species
     news_item["primary_species"] = primary_species or species
     news_item["headline_species"] = headline_species
+    news_item["channel_species"] = (
+        headline_species
+        or (primary_species if source in BODY_LED_CORE_SOURCES else [])
+    )
     news_item["editorial_signals"] = signals
     news_item["event_participants"] = []
     news_item["event_locations"] = []

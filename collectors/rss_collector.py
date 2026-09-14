@@ -95,14 +95,20 @@ def _extract_feed_article(entry, source):
 
         paragraphs.append(paragraph)
 
-    media = entry.get("media_content") or []
+    ignore_feed_images = bool(source.get("ignore_feed_images"))
+    media = [] if ignore_feed_images else entry.get("media_content") or []
     image_url = next(
         (item.get("url", "").strip() for item in media if item.get("url")),
         "",
     )
 
-    if not image_url:
-        image = soup.find("img")
+    if not image_url and not ignore_feed_images:
+        image_selector = source.get("feed_image_selector")
+        image = (
+            soup.select_one(image_selector)
+            if image_selector
+            else soup.find("img")
+        )
         image_url = image.get("src", "").strip() if image else ""
 
     return {
