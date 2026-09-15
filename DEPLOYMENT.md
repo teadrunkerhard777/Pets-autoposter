@@ -70,5 +70,7 @@ publishes nothing.
 Create a free Pexels API key and store it as the `PEXELS_API_KEY` repository
 secret. Before relying on the schedule, open **Actions → Pets Video
 Autoposter → Run workflow** with publication disabled. After that DRY_RUN is
-green, perform one manual live run with publication enabled. Scheduled runs are
-live; manual runs remain safe by default.
+green, perform one manual live run with publication enabled. Then add the
+repository variable `VIDEO_AUTOPOST_ENABLED=true` under **Settings → Secrets
+and variables → Actions → Variables**. Scheduled runs stay disabled until that
+variable is set; manual runs remain safe by default.
