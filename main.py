@@ -26,6 +26,7 @@ from config import (
     MIN_PUBLICATION_SCORE,
     NEWS_LOOKBACK_DAYS,
     POST_MODE,
+    SOURCE_COOLDOWN_PUBLICATIONS,
     SOURCES,
 )
 from core.environment import configure_ssl
@@ -43,6 +44,7 @@ from project.formatter import format_photo_caption, format_post
 from project.scoring import calculate_score
 from project.scheduling import filter_time_eligible
 from project.selection import (
+    apply_source_cooldowns,
     prefer_source_rotation,
     select_editorial_mix,
     sort_by_editorial_priority,
@@ -358,6 +360,11 @@ def run():
             item for item in unique_news
             if not is_published(item, history, EVENT_DEDUP_SETTINGS)
         ]
+    new_news = apply_source_cooldowns(
+        new_news,
+        history,
+        SOURCE_COOLDOWN_PUBLICATIONS,
+    )
     new_news = prefer_source_rotation(new_news, history)
 
     selected_news = select_editorial_mix(

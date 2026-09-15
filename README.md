@@ -44,7 +44,9 @@ Each run publishes at most one concise preview. Positive stories about any
 animal are eligible; cat and dog stories receive additional editorial weight.
 Source rotation happens only after this
 channel priority, so
-a one-item batch still rotates publications across the active feeds. The
+a one-item batch still rotates publications across the active feeds. Faunora
+also has a three-publication cooldown: if it appears among the last three
+channel posts, the run waits for another source instead. The
 curated evergreen queue is retained for future experiments but is not connected
 to the active sources and has no reserved publication slot.
 

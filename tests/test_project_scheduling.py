@@ -3,8 +3,16 @@ from datetime import datetime, timedelta, timezone
 from project.filters import is_relevant
 from project.scoring import calculate_score
 from project.scheduling import filter_time_eligible
-from project.selection import prefer_source_rotation, select_editorial_mix
-from project.settings import EVERGREEN_SLOTS_PER_RUN, MAX_NEWS_PER_RUN
+from project.selection import (
+    apply_source_cooldowns,
+    prefer_source_rotation,
+    select_editorial_mix,
+)
+from project.settings import (
+    EVERGREEN_SLOTS_PER_RUN,
+    MAX_NEWS_PER_RUN,
+    SOURCE_COOLDOWN_PUBLICATIONS,
+)
 
 
 NOW = datetime(2026, 9, 8, 12, tzinfo=timezone.utc)
@@ -16,6 +24,29 @@ def test_active_configuration_reserves_no_evergreen_slots():
 
 def test_active_configuration_selects_one_item_per_run():
     assert MAX_NEWS_PER_RUN == 1
+
+
+def test_faunora_waits_for_three_other_publications():
+    faunora = story("Белка играет на ярмарке", source="Faunora")
+    alternative = story("Нерпу выпустили в море", source="Другой источник")
+    history = [
+        {"source": "Faunora"},
+        {"source": "Источник A"},
+        {"source": "Источник B"},
+    ]
+
+    assert apply_source_cooldowns(
+        [faunora, alternative],
+        history,
+        SOURCE_COOLDOWN_PUBLICATIONS,
+    ) == [alternative]
+
+    history.append({"source": "Источник C"})
+    assert apply_source_cooldowns(
+        [faunora],
+        history,
+        SOURCE_COOLDOWN_PUBLICATIONS,
+    ) == [faunora]
 
 
 def story(title, **values):

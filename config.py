@@ -25,6 +25,11 @@ EVERGREEN_SLOTS_PER_RUN = getattr(
     "EVERGREEN_SLOTS_PER_RUN",
     0,
 )
+SOURCE_COOLDOWN_PUBLICATIONS = getattr(
+    project_settings,
+    "SOURCE_COOLDOWN_PUBLICATIONS",
+    {},
+)
 
 
 def _read_boolean_env(name, default):

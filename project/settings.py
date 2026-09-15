@@ -6,6 +6,10 @@ MIN_PUBLICATION_SCORE = 5
 EVERGREEN_SLOTS_PER_RUN = 0
 POST_MODE = "single"
 
+# Frequent broad feeds must not fill the channel merely because smaller
+# editorial sources have no suitable story on a particular run.
+SOURCE_COOLDOWN_PUBLICATIONS = {"Faunora": 3}
+
 EVENT_DEDUP_SETTINGS = {
     "text_limit": 1600, "time_window_hours": 48, "min_shared_tokens": 5,
     "min_token_overlap": 0.45, "min_token_jaccard": 0.20, "dense_match_tokens": 7,

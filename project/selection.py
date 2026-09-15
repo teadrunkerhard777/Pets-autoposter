@@ -64,6 +64,24 @@ def prefer_source_rotation(news_items, history):
     return urgent + sorted(regular, key=rotation_key)
 
 
+def apply_source_cooldowns(news_items, history, cooldowns):
+    """Suppress configured sources seen in their recent publication window."""
+
+    recent_sources = [
+        entry.get("source")
+        for entry in history
+        if isinstance(entry, dict) and entry.get("source")
+    ]
+    admitted = []
+    for item in news_items:
+        source = item.get("source")
+        window = max(0, int(cooldowns.get(source, 0)))
+        if window and source in recent_sources[-window:]:
+            continue
+        admitted.append(item)
+    return admitted
+
+
 def select_editorial_mix(
     news_items,
     limit,
