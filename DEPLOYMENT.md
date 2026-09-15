@@ -7,6 +7,7 @@ Actions**:
 
 - `TELEGRAM_BOT_TOKEN` — Telegram bot token;
 - `TELEGRAM_CHAT_ID` — target channel or chat identifier.
+- `PEXELS_API_KEY` — free API key used by the separate video schedule.
 
 Do not add a fine-grained GitHub token to this repository. GitHub Actions uses
 its short-lived built-in `GITHUB_TOKEN` to commit `storage/published.json`.
@@ -58,3 +59,16 @@ The workflow serializes runs, executes the test suite first, and records
 publication history only after confirmed Telegram success. Repository workflow
 permissions must allow Actions to write contents so the history commit can be
 pushed.
+
+## Video schedule
+
+The `Pets Video Autoposter` workflow runs at 13:00 and 20:00 in
+Asia/Yekaterinburg (08:00 and 15:00 UTC). Each run selects and sends at most one
+unpublished vertical Pexels video. If no suitable new video is available, it
+publishes nothing.
+
+Create a free Pexels API key and store it as the `PEXELS_API_KEY` repository
+secret. Before relying on the schedule, open **Actions → Pets Video
+Autoposter → Run workflow** with publication disabled. After that DRY_RUN is
+green, perform one manual live run with publication enabled. Scheduled runs are
+live; manual runs remain safe by default.
