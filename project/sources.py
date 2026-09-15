@@ -103,14 +103,14 @@ SOURCES = [
         "trust": 0.80,
     },
     {
-        "name": "Бумеранг добра — Истории о питомцах",
+        "name": "Бумеранг добра — Истории о животных",
         "type": "rss",
         "url": "https://bumerangdobra.ru/feed/",
         "enabled": True,
         "limit": 20,
         "use_feed_content": True,
         # This is a general kindness feed. Project relevance rules admit only
-        # explicitly positive cat and dog stories from it.
+        # explicitly positive stories whose headline has an animal hero.
         "source_kind": "positive_story_media",
         "language": "ru",
         "feed_timeout": 15,

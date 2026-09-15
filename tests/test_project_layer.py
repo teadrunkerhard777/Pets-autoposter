@@ -131,18 +131,29 @@ def test_cat_news_feed_accepts_a_light_cat_story_but_rejects_war_context():
     assert is_relevant(war_story) is False
 
 
-def test_kindness_feed_admits_only_explicit_pet_stories():
+def test_kindness_feed_admits_only_explicit_positive_animal_stories():
     puppy = item("Щенка спасали всем городом")
-    puppy["source"] = "Бумеранг добра — Истории о питомцах"
+    puppy["source"] = "Бумеранг добра — Истории о животных"
+    owl = item("Редкую сову спасли и вернули в дикую природу")
+    owl["source"] = "Бумеранг добра — Истории о животных"
     human_story = item("Пастух спас шесть человек")
-    human_story["source"] = "Бумеранг добра — Истории о питомцах"
+    human_story["source"] = "Бумеранг добра — Истории о животных"
 
     assert is_relevant(puppy) is True
+    assert is_relevant(owl) is True
+    assert owl["channel_species"] == ["other_animals"]
     assert is_relevant(human_story) is False
 
 
 def test_positive_sources_reject_war_context():
     story = item("Военные на Запорожском направлении спасли собак")
+    story["source"] = "Faunora"
+
+    assert is_relevant(story) is False
+
+
+def test_positive_sources_reject_environmental_problems_without_an_animal_hero():
+    story = item("Рекордная солёность моря привела к появлению новых видов рыб")
     story["source"] = "Faunora"
 
     assert is_relevant(story) is False
@@ -205,7 +216,7 @@ def test_positive_sources_reject_distressing_headlines():
         "Хорошие новости про животных",
         "РосПриют",
         "Кошаки форева — Кошачьи новости",
-        "Бумеранг добра — Истории о питомцах",
+        "Бумеранг добра — Истории о животных",
     ):
         story = item("Спасённый лисёнок получил тяжёлые травмы и раны")
         story["source"] = source
@@ -343,7 +354,7 @@ def test_enabled_sources_are_only_verified_russian_feeds():
         "Щенячий Ангел — Фото дня",
         "РосПриют",
         "Кошаки форева — Кошачьи новости",
-        "Бумеранг добра — Истории о питомцах",
+        "Бумеранг добра — Истории о животных",
     }
     assert queues == []
     assert {source["name"] for source in enabled if source["type"] == "html"} == {
