@@ -88,6 +88,36 @@ SOURCES = [
         "trust": 0.90,
     },
     {
+        "name": "Кошаки форева — Кошачьи новости",
+        "type": "rss",
+        "url": "https://100cats.ru/category/koshachi-novosti/feed/",
+        "enabled": True,
+        "limit": 20,
+        "use_feed_content": True,
+        # The category feed has useful summaries but no embedded image. The
+        # article page exposes a full-size Open Graph image.
+        "source_kind": "cat_news_media",
+        "language": "ru",
+        "feed_timeout": 15,
+        "feed_retries": 2,
+        "trust": 0.80,
+    },
+    {
+        "name": "Бумеранг добра — Истории о питомцах",
+        "type": "rss",
+        "url": "https://bumerangdobra.ru/feed/",
+        "enabled": True,
+        "limit": 20,
+        "use_feed_content": True,
+        # This is a general kindness feed. Project relevance rules admit only
+        # explicitly positive cat and dog stories from it.
+        "source_kind": "positive_story_media",
+        "language": "ru",
+        "feed_timeout": 15,
+        "feed_retries": 2,
+        "trust": 0.80,
+    },
+    {
         "name": "Faunora",
         "type": "rss",
         "url": "https://faunora.ru/rss.xml",

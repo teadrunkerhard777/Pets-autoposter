@@ -121,6 +121,26 @@ def test_pets_mail_accepts_a_light_dog_event():
     assert is_relevant(story) is True
 
 
+def test_cat_news_feed_accepts_a_light_cat_story_but_rejects_war_context():
+    record = item("Мейн-кун с 29 пальцами попал в Книгу рекордов")
+    record["source"] = "Кошаки форева — Кошачьи новости"
+    war_story = item("Кошка приносила еду людям в осаждённом городе")
+    war_story["source"] = "Кошаки форева — Кошачьи новости"
+
+    assert is_relevant(record) is True
+    assert is_relevant(war_story) is False
+
+
+def test_kindness_feed_admits_only_explicit_pet_stories():
+    puppy = item("Щенка спасали всем городом")
+    puppy["source"] = "Бумеранг добра — Истории о питомцах"
+    human_story = item("Пастух спас шесть человек")
+    human_story["source"] = "Бумеранг добра — Истории о питомцах"
+
+    assert is_relevant(puppy) is True
+    assert is_relevant(human_story) is False
+
+
 def test_positive_sources_reject_war_context():
     story = item("Военные на Запорожском направлении спасли собак")
     story["source"] = "Faunora"
@@ -180,7 +200,13 @@ def test_positive_source_rejects_poisoning_even_when_an_animal_was_saved():
 
 
 def test_positive_sources_reject_distressing_headlines():
-    for source in ("Faunora", "Хорошие новости про животных", "РосПриют"):
+    for source in (
+        "Faunora",
+        "Хорошие новости про животных",
+        "РосПриют",
+        "Кошаки форева — Кошачьи новости",
+        "Бумеранг добра — Истории о питомцах",
+    ):
         story = item("Спасённый лисёнок получил тяжёлые травмы и раны")
         story["source"] = source
 
@@ -316,6 +342,8 @@ def test_enabled_sources_are_only_verified_russian_feeds():
         "Faunora",
         "Щенячий Ангел — Фото дня",
         "РосПриют",
+        "Кошаки форева — Кошачьи новости",
+        "Бумеранг добра — Истории о питомцах",
     }
     assert queues == []
     assert {source["name"] for source in enabled if source["type"] == "html"} == {
