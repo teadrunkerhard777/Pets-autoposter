@@ -354,7 +354,6 @@ def test_enabled_sources_are_only_verified_russian_feeds():
         "Щенячий Ангел — Фото дня",
         "РосПриют",
         "Кошаки форева — Кошачьи новости",
-        "Бумеранг добра — Истории о животных",
     }
     assert queues == []
     assert {source["name"] for source in enabled if source["type"] == "html"} == {

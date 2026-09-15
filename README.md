@@ -29,7 +29,6 @@ that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.
 - «Хорошие новости про животных» — a curated positive animal-news feed;
 - «Щенячий Ангел — Фото дня» — short, frequently updated shelter stories with original pet photos;
 - «Кошаки форева — Кошачьи новости» — periodic cat-centred news with article photos;
-- «Бумеранг добра — Истории о животных» — positive, readable animal stories selected from a broader kindness feed;
 - «Питомцы Mail» — fresh cat-and-dog reporting with large article images, admitted through the positive-story filter;
 - Faunora — frequent animal reporting, admitted only through a strict positive-story filter;
 - «РосПриют» — adoption and rescue stories, also admitted only through the positive-story filter.
@@ -38,7 +37,8 @@ All active sources publish in Russian. «Ветеринария и жизнь �
 remain registered but disabled because their veterinary, industry, and
 specialist agendas do not fit the channel. ASPCA is English-language and too
 infrequent for the configured news window; unattended Blue Cross requests
-currently receive HTTP 403.
+currently receive HTTP 403. «Бумеранг добра» is also disabled: its feed mostly
+contains unrelated human stories and assigns current dates to recycled items.
 
 Each run publishes at most one concise preview. Positive stories about any
 animal are eligible; cat and dog stories receive additional editorial weight.

@@ -106,7 +106,10 @@ SOURCES = [
         "name": "Бумеранг добра — Истории о животных",
         "type": "rss",
         "url": "https://bumerangdobra.ru/feed/",
-        "enabled": True,
+        # Disabled after reviewing the latest ten entries: only a small share
+        # concerns animals, text is duplicated, and republished old stories
+        # are presented with current feed dates.
+        "enabled": False,
         "limit": 20,
         "use_feed_content": True,
         # This is a general kindness feed. Project relevance rules admit only
