@@ -60,17 +60,30 @@ publication history only after confirmed Telegram success. Repository workflow
 permissions must allow Actions to write contents so the history commit can be
 pushed.
 
-## Video schedule
+## Video schedule through external cron
 
-The `Pets Video Autoposter` workflow runs at 13:00 and 20:00 in
-Asia/Yekaterinburg (08:00 and 15:00 UTC). Each run selects and sends at most one
-unpublished vertical Pexels video. If no suitable new video is available, it
-publishes nothing.
+The `Pets Video Autoposter` workflow intentionally has no GitHub `schedule`
+trigger. GitHub scheduled events can be delayed or omitted, so two external
+cron jobs dispatch it at 13:00 and 20:00 in Asia/Yekaterinburg. Each run selects
+and sends at most one unpublished vertical Pexels video. If no suitable new
+video is available, it publishes nothing.
 
 Create a free Pexels API key and store it as the `PEXELS_API_KEY` repository
 secret. Before relying on the schedule, open **Actions → Pets Video
 Autoposter → Run workflow** with publication disabled. After that DRY_RUN is
-green, perform one manual live run with publication enabled. Then add the
-repository variable `VIDEO_AUTOPOST_ENABLED=true` under **Settings → Secrets
-and variables → Actions → Variables**. Scheduled runs stay disabled until that
-variable is set; manual runs remain safe by default.
+green, perform one manual live run with publication enabled.
+
+Create a fine-grained GitHub token with access only to `Pets-autoposter` and
+**Actions: Read and write**. In cron-job.org, create two jobs with timezone
+`Asia/Yekaterinburg` and schedules `0 13 * * *` and `0 20 * * *`. Both jobs use:
+
+- method: `POST`;
+- URL: `https://api.github.com/repos/teadrunkerhard777/Pets-autoposter/actions/workflows/videos.yml/dispatches`;
+- header `Accept`: `application/vnd.github+json`;
+- header `Authorization`: `Bearer YOUR_FINE_GRAINED_TOKEN`;
+- header `X-GitHub-Api-Version`: `2026-03-10`;
+- header `Content-Type`: `application/json`;
+- request body: `{"ref":"main","inputs":{"publish":true}}`.
+
+Run one cron job manually after saving it. HTTP 204 means GitHub accepted the
+dispatch; confirm the resulting workflow under the repository's Actions tab.
