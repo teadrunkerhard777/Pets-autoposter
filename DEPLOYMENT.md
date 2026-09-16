@@ -8,6 +8,7 @@ Actions**:
 - `TELEGRAM_BOT_TOKEN` — Telegram bot token;
 - `TELEGRAM_CHAT_ID` — target channel or chat identifier.
 - `PEXELS_API_KEY` — free API key used by the separate video schedule.
+- `PIXABAY_API_KEY` — free API key for the secondary video source.
 
 Do not add a fine-grained GitHub token to this repository. GitHub Actions uses
 its short-lived built-in `GITHUB_TOKEN` to commit `storage/published.json`.
@@ -65,13 +66,15 @@ pushed.
 The `Pets Video Autoposter` workflow intentionally has no GitHub `schedule`
 trigger. GitHub scheduled events can be delayed or omitted, so two external
 cron jobs dispatch it at 13:00 and 20:00 in Asia/Yekaterinburg. Each run selects
-and sends at most one unpublished vertical Pexels video. If no suitable new
-video is available, it publishes nothing.
+and sends at most one unpublished Pexels or Pixabay video. The preferred source
+alternates by slot and the other acts as a fallback. If no suitable new video
+is available, it publishes nothing.
 
-Create a free Pexels API key and store it as the `PEXELS_API_KEY` repository
-secret. Before relying on the schedule, open **Actions → Pets Video
-Autoposter → Run workflow** with publication disabled. After that DRY_RUN is
-green, perform one manual live run with publication enabled.
+Create free Pexels and Pixabay API keys and store them as the `PEXELS_API_KEY`
+and `PIXABAY_API_KEY` repository secrets. Before relying on the schedule, open
+**Actions → Pets Video Autoposter → Run workflow** with publication disabled.
+After that DRY_RUN is green, perform one manual live run with publication
+enabled.
 
 Create a fine-grained GitHub token with access only to `Pets-autoposter` and
 **Actions: Read and write**. In cron-job.org, create two jobs with timezone

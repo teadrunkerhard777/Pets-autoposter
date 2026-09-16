@@ -1,10 +1,15 @@
-"""Collect and publish at most one light-hearted Pexels animal video."""
+"""Collect and publish at most one light-hearted licensed animal video."""
 
 import html
 import os
 from datetime import datetime, timezone
 
 from collectors.pexels_video_collector import collect_pexels_videos
+from collectors.pexels_video_collector import PexelsVideoError
+from collectors.pixabay_video_collector import (
+    PixabayVideoError,
+    collect_pixabay_videos,
+)
 from config import DRY_RUN
 from core.environment import configure_ssl
 from core.run_lock import AlreadyRunningError, single_instance_lock
@@ -15,6 +20,7 @@ from project.video_settings import (
     VIDEO_ORIENTATION,
     VIDEO_RESULTS_PER_RUN,
     VIDEO_SEARCH_QUERIES,
+    VIDEO_SOURCES,
     VIDEO_TIMEZONE,
 )
 from publishing.telegram import (
@@ -36,10 +42,23 @@ def choose_search_query(now=None):
     return VIDEO_SEARCH_QUERIES[index]
 
 
+def choose_source_order(now=None):
+    """Alternate the preferred source while retaining the other as fallback."""
+
+    current = now or datetime.now(timezone.utc)
+    local = current.astimezone(VIDEO_TIMEZONE)
+    slot = 0 if local.hour < 17 else 1
+    preferred = (local.date().toordinal() * 2 + slot) % len(VIDEO_SOURCES)
+    return VIDEO_SOURCES[preferred:] + VIDEO_SOURCES[:preferred]
+
+
 def format_video_caption(item):
-    caption = VIDEO_CAPTIONS[int(item.get("pexels_id") or 0) % len(VIDEO_CAPTIONS)]
+    media_id = str(item.get("media_id") or item.get("pexels_id") or "0")
+    caption_index = sum(media_id.encode("utf-8")) % len(VIDEO_CAPTIONS)
+    caption = VIDEO_CAPTIONS[caption_index]
     page_url = html.escape(str(item["url"]), quote=True)
-    return f'{caption}\n\n<a href="{page_url}">Pexels</a>'
+    source_label = html.escape(str(item.get("source_label") or item["source"]))
+    return f'{caption}\n\n<a href="{page_url}">{source_label}</a>'
 
 
 def select_unpublished_video(candidates, history):
@@ -65,8 +84,33 @@ def add_video_to_history(item, history):
         "url": item.get("url", ""),
         "published_at": None,
         "source": item.get("source"),
+        "media_id": item.get("media_id"),
         "pexels_id": item.get("pexels_id"),
+        "pixabay_id": item.get("pixabay_id"),
     })
+
+
+def collect_source_videos(source, query):
+    """Collect one configured source without leaking its credential."""
+
+    if source == "Pexels":
+        return collect_pexels_videos(
+            api_key=os.getenv("PEXELS_API_KEY", "").strip(),
+            query=query,
+            orientation=VIDEO_ORIENTATION,
+            per_page=VIDEO_RESULTS_PER_RUN,
+            max_duration_seconds=VIDEO_MAX_DURATION_SECONDS,
+            max_size_bytes=VIDEO_MAX_SIZE_BYTES,
+        )
+    if source == "Pixabay":
+        return collect_pixabay_videos(
+            api_key=os.getenv("PIXABAY_API_KEY", "").strip(),
+            query=query,
+            per_page=VIDEO_RESULTS_PER_RUN,
+            max_duration_seconds=VIDEO_MAX_DURATION_SECONDS,
+            max_size_bytes=VIDEO_MAX_SIZE_BYTES,
+        )
+    return []
 
 
 def publish_video(
@@ -116,24 +160,28 @@ def publish_video(
 def run(now=None):
     configure_ssl()
     query = choose_search_query(now)
-    candidates = collect_pexels_videos(
-        api_key=os.getenv("PEXELS_API_KEY", "").strip(),
-        query=query,
-        orientation=VIDEO_ORIENTATION,
-        per_page=VIDEO_RESULTS_PER_RUN,
-        max_duration_seconds=VIDEO_MAX_DURATION_SECONDS,
-        max_size_bytes=VIDEO_MAX_SIZE_BYTES,
-    )
     history = load_history()
-    selected = select_unpublished_video(candidates, history)
     print(f"Video query: {query}")
-    print(f"Suitable videos: {len(candidates)}")
+    selected = None
+    for source in choose_source_order(now):
+        try:
+            candidates = collect_source_videos(source, query)
+        except (PexelsVideoError, PixabayVideoError) as error:
+            print(f"Video source warning ({source}): {error}")
+            continue
+        print(f"Suitable videos ({source}): {len(candidates)}")
+        selected = select_unpublished_video(candidates, history)
+        if selected is not None:
+            break
 
     if selected is None:
         print("No unpublished video is available; publication skipped.")
         return None
 
-    print(f"Selected Pexels video: {selected.get('pexels_id')}")
+    print(
+        f"Selected {selected.get('source')} video: "
+        f"{selected.get('media_id')}"
+    )
     history_changed = publish_video(selected, history, DRY_RUN)
     if not DRY_RUN and history_changed:
         save_history(history)

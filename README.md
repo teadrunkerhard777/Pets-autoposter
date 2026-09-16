@@ -67,10 +67,11 @@ Deployment and safe control-run instructions are in [DEPLOYMENT.md](DEPLOYMENT.m
 ## Light-hearted videos
 
 A separate workflow, dispatched by external cron at 13:00 and 20:00
-Asia/Yekaterinburg, selects at most one short vertical animal video from the
-official Pexels API. It never repeats a video already present in publication
-history, keeps only the compact Pexels link required by the API guidelines, and
-skips the slot when no suitable unpublished video is available. It requires the
-free `PEXELS_API_KEY` secret; see [DEPLOYMENT.md](DEPLOYMENT.md).
+Asia/Yekaterinburg, selects at most one short animal video from the official
+Pexels and Pixabay APIs. The preferred source alternates by slot and the other
+acts as a fallback. It never repeats a video already present in publication
+history, keeps only a compact source link, and skips the slot when no suitable
+unpublished video is available. It requires free API keys; see
+[DEPLOYMENT.md](DEPLOYMENT.md).
 
 See [PROJECT_CONCEPT.md](PROJECT_CONCEPT.md), [SOURCES.md](SOURCES.md), and [EDITORIAL_POLICY.md](EDITORIAL_POLICY.md) for the channel rules.

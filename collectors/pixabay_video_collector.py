@@ -1,49 +1,49 @@
-"""Small Pexels video collector with no third-party client dependency."""
+"""Small Pixabay video collector with no third-party client dependency."""
 
 import requests
 
 
-PEXELS_VIDEO_SEARCH_URL = "https://api.pexels.com/v1/videos/search"
-PEXELS_TIMEOUT = (10, 30)
+PIXABAY_VIDEO_SEARCH_URL = "https://pixabay.com/api/videos/"
+PIXABAY_TIMEOUT = (10, 30)
 
 
-class PexelsVideoError(Exception):
-    """Expected Pexels configuration or response failure."""
+class PixabayVideoError(Exception):
+    """Expected Pixabay configuration or response failure."""
 
 
-def collect_pexels_videos(
+def collect_pixabay_videos(
     api_key,
     query,
-    orientation,
     per_page,
     max_duration_seconds,
     max_size_bytes,
 ):
-    """Return Telegram-compatible Pexels video candidates."""
+    """Return Telegram-compatible Pixabay animal video candidates."""
 
     if not api_key:
-        raise PexelsVideoError("PEXELS_API_KEY is missing")
+        raise PixabayVideoError("PIXABAY_API_KEY is missing")
 
     try:
         response = requests.get(
-            PEXELS_VIDEO_SEARCH_URL,
-            headers={"Authorization": api_key},
+            PIXABAY_VIDEO_SEARCH_URL,
             params={
-                "query": query,
-                "orientation": orientation,
-                "size": "small",
+                "key": api_key,
+                "q": query,
+                "category": "animals",
+                "safesearch": "true",
+                "order": "popular",
                 "per_page": per_page,
             },
-            timeout=PEXELS_TIMEOUT,
+            timeout=PIXABAY_TIMEOUT,
         )
         response.raise_for_status()
         payload = response.json()
     except (requests.RequestException, ValueError) as error:
-        raise PexelsVideoError(type(error).__name__) from error
+        raise PixabayVideoError(type(error).__name__) from error
 
-    videos = payload.get("videos") if isinstance(payload, dict) else None
+    videos = payload.get("hits") if isinstance(payload, dict) else None
     if not isinstance(videos, list):
-        raise PexelsVideoError("Pexels returned an invalid video list")
+        raise PixabayVideoError("Pixabay returned an invalid video list")
 
     candidates = []
     for video in videos:
@@ -54,7 +54,6 @@ def collect_pexels_videos(
         )
         if candidate is not None:
             candidates.append(candidate)
-
     return candidates
 
 
@@ -66,57 +65,47 @@ def _normalize_video(video, max_duration_seconds, max_size_bytes):
     if not isinstance(duration, int) or not 1 <= duration <= max_duration_seconds:
         return None
 
-    video_file = _best_video_file(video.get("video_files"), max_size_bytes)
-    user = video.get("user") if isinstance(video.get("user"), dict) else {}
-    page_url = video.get("url")
-
+    video_file = _best_video_file(video.get("videos"), max_size_bytes)
+    page_url = video.get("pageURL")
     if video_file is None or not isinstance(page_url, str):
         return None
 
+    media_id = video.get("id")
     return {
         "title": "Весёлое видео с животными",
         "url": page_url,
-        "source": "Pexels",
-        "source_label": "Pexels",
+        "source": "Pixabay",
+        "source_label": "Pixabay",
         "published_at": None,
         "article_text": "",
         "image_url": None,
-        "video_url": video_file["link"],
+        "video_url": video_file["url"],
         "video_width": video_file.get("width"),
         "video_height": video_file.get("height"),
         "video_duration": duration,
-        "video_size": video_file.get("file_size"),
-        "creator_name": user.get("name") or "автор Pexels",
-        "creator_url": user.get("url") or page_url,
-        "pexels_id": video.get("id"),
-        "media_id": f"pexels:{video.get('id')}",
+        "video_size": video_file.get("size"),
+        "media_id": f"pixabay:{media_id}",
+        "pixabay_id": media_id,
     }
 
 
 def _best_video_file(video_files, max_size_bytes):
-    if not isinstance(video_files, list):
+    if not isinstance(video_files, dict):
         return None
 
     suitable = []
-    for video_file in video_files:
+    for video_file in video_files.values():
         if not isinstance(video_file, dict):
             continue
-        if video_file.get("file_type") != "video/mp4":
+        if not isinstance(video_file.get("url"), str):
             continue
-        if not isinstance(video_file.get("link"), str):
+        file_size = video_file.get("size")
+        if not isinstance(file_size, int) or not 0 < file_size <= max_size_bytes:
             continue
-
-        file_size = video_file.get("file_size")
-        if isinstance(file_size, int) and not 0 < file_size <= max_size_bytes:
-            continue
-        if file_size is not None and not isinstance(file_size, int):
-            continue
-
         width = video_file.get("width") or 0
         height = video_file.get("height") or 0
         if not width or not height or max(width, height) > 1920:
             continue
-
         suitable.append(video_file)
 
     if not suitable:
@@ -125,8 +114,7 @@ def _best_video_file(video_files, max_size_bytes):
     return min(
         suitable,
         key=lambda item: (
-            item.get("width", 0) > item.get("height", 0),
             abs(max(item.get("width", 0), item.get("height", 0)) - 1080),
-            item.get("file_size") or max_size_bytes,
+            item["size"],
         ),
     )

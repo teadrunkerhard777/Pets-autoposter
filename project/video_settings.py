@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 
 VIDEO_TIMEZONE = ZoneInfo("Asia/Yekaterinburg")
+VIDEO_SOURCES = ("Pexels", "Pixabay")
 VIDEO_SEARCH_QUERIES = (
     "funny cat",
     "playful dog",

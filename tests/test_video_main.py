@@ -4,6 +4,7 @@ from publishing.telegram import TelegramSendResult, TemporaryVideo
 from video_main import (
     add_video_to_history,
     choose_search_query,
+    choose_source_order,
     format_video_caption,
     publish_video,
     select_unpublished_video,
@@ -30,6 +31,18 @@ def test_query_rotation_uses_different_day_and_evening_slots():
     assert daytime != evening
 
 
+def test_source_rotation_uses_different_day_and_evening_preferences():
+    daytime = choose_source_order(
+        datetime(2026, 9, 16, 8, tzinfo=timezone.utc)
+    )
+    evening = choose_source_order(
+        datetime(2026, 9, 16, 15, tzinfo=timezone.utc)
+    )
+
+    assert daytime[0] != evening[0]
+    assert set(daytime) == {"Pexels", "Pixabay"}
+
+
 def test_selection_skips_url_already_in_history():
     old = video()
     fresh = {**video(), "url": "https://www.pexels.com/video/43/"}
@@ -54,6 +67,23 @@ def test_caption_keeps_only_required_pexels_link():
         '<a href="https://www.pexels.com/video/42/">Pexels</a>'
     )
     assert "https://www.pexels.com/video/42/" in caption
+
+
+def test_caption_uses_pixabay_source_label():
+    item = {
+        **video(),
+        "source": "Pixabay",
+        "source_label": "Pixabay",
+        "url": "https://pixabay.com/videos/id-77/",
+        "media_id": "pixabay:77",
+    }
+
+    caption = format_video_caption(item)
+
+    assert "Pexels" not in caption
+    assert caption.endswith(
+        '<a href="https://pixabay.com/videos/id-77/">Pixabay</a>'
+    )
 
 
 def test_dry_run_downloads_and_removes_video_without_telegram(tmp_path):
