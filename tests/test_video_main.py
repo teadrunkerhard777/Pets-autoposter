@@ -46,11 +46,13 @@ def test_video_history_entry_remains_url_only():
     assert "event_fingerprint" not in history[0]
 
 
-def test_caption_credits_creator_and_pexels():
+def test_caption_keeps_only_required_pexels_link():
     caption = format_video_caption(video())
 
-    assert "Cats &amp; Dogs" in caption
-    assert "Pexels" in caption
+    assert "Cats &amp; Dogs" not in caption
+    assert caption.endswith(
+        '<a href="https://www.pexels.com/video/42/">Pexels</a>'
+    )
     assert "https://www.pexels.com/video/42/" in caption
 
 

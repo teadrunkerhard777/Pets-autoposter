@@ -38,17 +38,8 @@ def choose_search_query(now=None):
 
 def format_video_caption(item):
     caption = VIDEO_CAPTIONS[int(item.get("pexels_id") or 0) % len(VIDEO_CAPTIONS)]
-    creator = html.escape(str(item.get("creator_name") or "автор Pexels"))
-    creator_url = html.escape(
-        str(item.get("creator_url") or item["url"]),
-        quote=True,
-    )
     page_url = html.escape(str(item["url"]), quote=True)
-    return (
-        f"{caption}\n\n"
-        f'🎬 <a href="{creator_url}">{creator}</a> · '
-        f'<a href="{page_url}">Pexels</a>'
-    )
+    return f'{caption}\n\n<a href="{page_url}">Pexels</a>'
 
 
 def select_unpublished_video(candidates, history):
