@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from publishing.telegram import TelegramSendResult, TemporaryVideo
+from project.video_settings import VIDEO_CAPTIONS
 from video_main import (
     add_video_to_history,
     choose_search_query,
@@ -22,6 +23,11 @@ def video():
         "creator_url": "https://www.pexels.com/@cats-dogs/",
         "pexels_id": 42,
     }
+
+
+def test_video_captions_are_varied_and_unique():
+    assert len(VIDEO_CAPTIONS) >= 20
+    assert len(set(VIDEO_CAPTIONS)) == len(VIDEO_CAPTIONS)
 
 
 def test_query_rotation_uses_different_day_and_evening_slots():
