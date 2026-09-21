@@ -6202,5 +6202,14 @@
       "event_date": null,
       "locations": []
     }
+  },
+  {
+    "title": "Весёлое видео с животными",
+    "url": "https://www.pexels.com/video/group-of-dogs-outdoors-in-winter-10976410/",
+    "published_at": null,
+    "source": "Pexels",
+    "media_id": "pexels:10976410",
+    "pexels_id": 10976410,
+    "pixabay_id": null
   }
 ]
