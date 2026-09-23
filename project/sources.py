@@ -16,6 +16,62 @@ def _extract_pets_mail_published_at(soup):
     node = soup.select_one('meta[property="article:published_time"]')
     return node.get("content", "").strip() if node else None
 
+
+def _extract_meta_published_at(soup, selector):
+    node = soup.select_one(selector)
+    return node.get("content", "").strip() if node else None
+
+
+def _extract_inform_published_at(soup):
+    return _extract_meta_published_at(
+        soup,
+        'meta[name="analytics:published_time"]',
+    )
+
+
+def _extract_vokrugsveta_published_at(soup):
+    return _extract_meta_published_at(
+        soup,
+        'meta[itemprop="datePublished"]',
+    )
+
+
+def _clean_selected_paragraphs(soup, selectors, stop_prefixes=()):
+    paragraphs = []
+    for selector in selectors:
+        for node in soup.select(selector):
+            paragraph = " ".join(node.get_text(" ", strip=True).split())
+            normalized = paragraph.casefold()
+            if any(normalized.startswith(prefix) for prefix in stop_prefixes):
+                return "\n\n".join(paragraphs)
+            if not paragraph or normalized.startswith("ранее "):
+                continue
+            if len(paragraph) < 50 and not any(mark in paragraph for mark in ".?!"):
+                continue
+            if paragraph not in paragraphs:
+                paragraphs.append(paragraph)
+    return "\n\n".join(paragraphs)
+
+
+def _extract_inform_text(soup):
+    return _clean_selected_paragraphs(
+        soup,
+        (".article__head p", ".article__content > p"),
+    )
+
+
+def _extract_vokrugsveta_text(soup):
+    return _clean_selected_paragraphs(
+        soup,
+        (".ds-article-content p",),
+        stop_prefixes=("а мы, пока",),
+    )
+
+
+def _extract_vokrugsveta_image(soup):
+    image = soup.select_one('article img[src*="hsmedia.ru/"]:not([src$=".svg"])')
+    return image.get("src", "").strip() if image else None
+
 SOURCES = [
     {
         "name": "ASPCA News",
@@ -103,6 +159,39 @@ SOURCES = [
         "trust": 0.80,
     },
     {
+        "name": "Казинформ — Животные",
+        "type": "html",
+        "url": "https://www.inform.kz/tag/zhivotnye_t11143",
+        "base_url": "https://www.inform.kz",
+        "enabled": True,
+        "limit": 30,
+        "item_selector": "a.news-card",
+        "title_selector": ".card-title",
+        "link_from_item": True,
+        "date_selector": "time.meta-date",
+        "description_selector": ".card-title",
+        "source_kind": "animal_news_media",
+        "language": "ru",
+        "retries": 2,
+        "trust": 0.90,
+    },
+    {
+        "name": "Вокруг света — Животные",
+        "type": "html",
+        "url": "https://www.vokrugsveta.ru/zhivaya-planeta/zivotnye/",
+        "base_url": "https://www.vokrugsveta.ru",
+        "enabled": True,
+        "limit": 30,
+        "item_selector": ".ds-card._horizontal",
+        "title_selector": ".ds-card__title",
+        "link_selector": ".ds-card__title",
+        "description_selector": ".ds-card__description",
+        "source_kind": "animal_feature_media",
+        "language": "ru",
+        "retries": 2,
+        "trust": 0.90,
+    },
+    {
         "name": "Бумеранг добра — Истории о животных",
         "type": "rss",
         "url": "https://bumerangdobra.ru/feed/",
@@ -184,9 +273,17 @@ SOURCES = [
     },
 ]
 
-SOURCE_EXTRACTORS = {}
-SOURCE_IMAGE_EXTRACTORS = {"РКФ": _extract_rkf_image}
+SOURCE_EXTRACTORS = {
+    "Казинформ — Животные": _extract_inform_text,
+    "Вокруг света — Животные": _extract_vokrugsveta_text,
+}
+SOURCE_IMAGE_EXTRACTORS = {
+    "РКФ": _extract_rkf_image,
+    "Вокруг света — Животные": _extract_vokrugsveta_image,
+}
 SOURCE_PUBLISHED_AT_EXTRACTORS = {
     "Питомцы Mail": _extract_pets_mail_published_at,
+    "Казинформ — Животные": _extract_inform_published_at,
+    "Вокруг света — Животные": _extract_vokrugsveta_published_at,
 }
 SOURCE_STOP_MARKERS = {}

@@ -10,6 +10,7 @@ from project.scoring import calculate_score
 from project.settings import MIN_PUBLICATION_SCORE
 from project.sources import (
     SOURCES,
+    SOURCE_EXTRACTORS,
     SOURCE_IMAGE_EXTRACTORS,
     SOURCE_PUBLISHED_AT_EXTRACTORS,
 )
@@ -157,6 +158,26 @@ def test_positive_sources_reject_environmental_problems_without_an_animal_hero()
     story["source"] = "Faunora"
 
     assert is_relevant(story) is False
+
+
+def test_discovery_sources_accept_light_wildlife_stories():
+    sighting = item("Редкого снежного барса заметили на горной тропе")
+    sighting["source"] = "Казинформ — Животные"
+    discovery = item("Мохнатые археологи: кроты нашли средневековую усадьбу")
+    discovery["source"] = "Вокруг света — Животные"
+
+    assert is_relevant(sighting) is True
+    assert is_relevant(discovery) is True
+
+
+def test_discovery_sources_reject_distressing_animal_news():
+    accident = item("Около 200 животных оказались в степи после ДТП")
+    accident["source"] = "Казинформ — Животные"
+    attack = item("Медведь убил человека во время нападения")
+    attack["source"] = "Вокруг света — Животные"
+
+    assert is_relevant(accident) is False
+    assert is_relevant(attack) is False
 
 
 def test_administrator_does_not_match_minister_block_word():
@@ -358,6 +379,8 @@ def test_enabled_sources_are_only_verified_russian_feeds():
     assert queues == []
     assert {source["name"] for source in enabled if source["type"] == "html"} == {
         "Питомцы Mail",
+        "Казинформ — Животные",
+        "Вокруг света — Животные",
     }
     assert all(source["language"] == "ru" for source in enabled)
     assert VISUAL_TYPES == {"NEWS", "SAFETY", "CARE", "WELFARE", "CAT_FACT"}
@@ -442,4 +465,55 @@ def test_pets_mail_reads_exact_article_timestamp():
 
     assert SOURCE_PUBLISHED_AT_EXTRACTORS["Питомцы Mail"](soup) == (
         "2026-09-04T09:00:00+03:00"
+    )
+
+
+def test_new_animal_sources_read_exact_article_timestamps():
+    soup = BeautifulSoup(
+        '<meta name="analytics:published_time" content="2026-09-23T10:17:00Z">'
+        '<meta itemprop="datePublished" content="2026-09-22T16:41:07.574Z">',
+        "html.parser",
+    )
+
+    assert SOURCE_PUBLISHED_AT_EXTRACTORS["Казинформ — Животные"](soup) == (
+        "2026-09-23T10:17:00Z"
+    )
+    assert SOURCE_PUBLISHED_AT_EXTRACTORS["Вокруг света — Животные"](soup) == (
+        "2026-09-22T16:41:07.574Z"
+    )
+
+
+def test_new_animal_source_extractors_keep_article_copy_only():
+    inform = BeautifulSoup(
+        '<div class="article__head"><p>Редкие кадры животных из заповедника.</p></div>'
+        '<div class="article__content"><p>Барс спокойно прошёл перед камерой.</p>'
+        '<p>Ранее сообщалось о другой новости.</p></div>',
+        "html.parser",
+    )
+    vokrugsveta = BeautifulSoup(
+        '<div class="ds-article-content"><p>Фото: архив</p>'
+        '<p>Кроты помогли археологам сделать интересное открытие.</p>'
+        '<p>А мы, пока готовили материал, вспомнили старую историю.</p></div>',
+        "html.parser",
+    )
+
+    assert SOURCE_EXTRACTORS["Казинформ — Животные"](inform) == (
+        "Редкие кадры животных из заповедника.\n\n"
+        "Барс спокойно прошёл перед камерой."
+    )
+    assert SOURCE_EXTRACTORS["Вокруг света — Животные"](vokrugsveta) == (
+        "Кроты помогли археологам сделать интересное открытие."
+    )
+
+
+def test_vokrugsveta_uses_the_article_photo_instead_of_share_card():
+    soup = BeautifulSoup(
+        '<meta property="og:image" content="https://example.test/share-card.jpg">'
+        '<article><img src="https://cdn.hsmedia.ru/dist/site/stub.svg">'
+        '<img src="https://n1s1.hsmedia.ru/photo/animal.jpg.webp"></article>',
+        "html.parser",
+    )
+
+    assert SOURCE_IMAGE_EXTRACTORS["Вокруг света — Животные"](soup) == (
+        "https://n1s1.hsmedia.ru/photo/animal.jpg.webp"
     )

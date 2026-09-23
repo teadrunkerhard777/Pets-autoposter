@@ -29,6 +29,8 @@ that an illustration documents a real event. See [MEDIA_POLICY.md](MEDIA_POLICY.
 - «Хорошие новости про животных» — a curated positive animal-news feed;
 - «Щенячий Ангел — Фото дня» — short, frequently updated shelter stories with original pet photos;
 - «Кошаки форева — Кошачьи новости» — periodic cat-centred news with article photos;
+- «Казинформ — Животные» — current wildlife sightings and discoveries with dated original photos;
+- «Вокруг света — Животные» — readable science and wildlife features with large illustrations;
 - «Питомцы Mail» — fresh cat-and-dog reporting with large article images, admitted through the positive-story filter;
 - Faunora — frequent animal reporting, admitted only through a strict positive-story filter;
 - «РосПриют» — adoption and rescue stories, also admitted only through the positive-story filter.

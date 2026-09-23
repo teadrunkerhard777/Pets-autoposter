@@ -29,6 +29,8 @@ SPECIES_KEYWORDS = {
         "ослик", "белк", "заяц", "сова", "совы", "сову", "совой", "слон",
         "дельфин", "кит", "панд", "тигр", "льв", "лев", "олен", "косул",
         "бобр", "морж", "обезьян", "кабан", "журавл", "аист", "лебед",
+        "беркут", "орёл", "орел", "козерог", "барс", "крот", "акул",
+        "каракатиц", "гадюк", "зме", "рысь", "росомах", "сурикат",
     ),
 }
 EVENT_CATEGORY_KEYWORDS = (
@@ -59,6 +61,10 @@ CURATED_POSITIVE_SOURCES = {
     "Щенячий Ангел — Фото дня",
 }
 BODY_LED_CORE_SOURCES = {"Щенячий Ангел — Фото дня"}
+DISCOVERY_ANIMAL_SOURCES = {
+    "Казинформ — Животные",
+    "Вокруг света — Животные",
+}
 STRICT_POSITIVE_SOURCES = {
     "Faunora",
     "Питомцы Mail",
@@ -66,6 +72,12 @@ STRICT_POSITIVE_SOURCES = {
     "Кошаки форева — Кошачьи новости",
     "Бумеранг добра — Истории о животных",
 }
+INTERESTING_ANIMAL_KEYWORDS = (
+    "попал в объектив", "попали в объектив", "фотоловушк", "редкие кадры",
+    "заметили", "обнаружили", "новый вид", "нашли", "засняли", "впервые",
+    "необычн", "удивительн", "рекорд", "родил", "детёныш", "детеныш",
+    "выставк", "вернули в природу", "выпустили в природу",
+)
 POSITIVE_STORY_KEYWORDS = (
     "спас", "помог", "обрёл дом", "обрела дом", "обрели дом", "нашёл дом",
     "нашла дом", "нашли дом", "новая семья", "пристро", "усынов", "взяли домой",
@@ -82,6 +94,8 @@ EDITORIAL_MISMATCH_KEYWORDS = (
     "военн", "боев", "фронт", "запорож", "спецоперац",
     "загрязнен", "загрязнён", "засух", "обмелен", "соленост", "солёност",
     "массовая гибель", "массовой гибели", "экологическая катастроф",
+    "дтп", "авари", "нападени", "исчезнуть", "мертворожден",
+    "мертворождён", "добытого", "браконьер",
     "подарки от", "доставка подарков", "благотворительная акция", "благотворительной акции",
     "учебно-кинологичес",
     "ветеринар предупред", "ветврач предупред",
@@ -117,7 +131,13 @@ def is_relevant(news_item):
         news_item.get("source") in TRUSTED_PET_SOURCES and _contains_any(text, PET_KEYWORDS)
     )
     source = news_item.get("source")
-    if relevant and source in STRICT_POSITIVE_SOURCES:
+    if relevant and source in DISCOVERY_ANIMAL_SOURCES:
+        relevant = (
+            bool(headline_species)
+            and _contains_any(text, INTERESTING_ANIMAL_KEYWORDS)
+            and not _contains_any(text, EDITORIAL_MISMATCH_KEYWORDS)
+        )
+    elif relevant and source in STRICT_POSITIVE_SOURCES:
         relevant = (
             bool(headline_species)
             and _contains_any(text, POSITIVE_STORY_KEYWORDS)
