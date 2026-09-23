@@ -67,8 +67,8 @@ def test_positive_animal_story_gets_warm_category():
     assert is_relevant(story) is True
     assert story["event_category"] == "positive_story"
     assert story["editorial_signals"] == ["positive"]
-    assert "💛 ДОБРАЯ ИСТОРИЯ" in format_post(story)
-    assert "#ДобрыеНовости" in format_post(story)
+    assert format_post(story).startswith("<b>Спасённый котёнок нашёл дом")
+    assert "#МирЖивотных #Кошки" in format_post(story)
 
 
 def test_headline_cat_and_dog_receive_equal_channel_priority():
@@ -299,7 +299,7 @@ def test_evergreen_cat_fact_is_accepted_and_formatted():
 
     assert is_relevant(story) is True
     assert story["event_category"] == "evergreen_cat_fact"
-    assert "😺 ФАКТ О КОШКАХ" in format_post(story)
+    assert format_post(story).startswith("<b>Факт о кошках")
     assert "#Кошки" in format_post(story)
 
 
@@ -336,7 +336,7 @@ def test_curated_checklist_gets_scannable_bullets():
 
     preview = format_post(story)
 
-    assert "✅ СОХРАНИТЕ ЧЕК-ЛИСТ" in preview
+    assert preview.startswith("<b>Домашняя памятка</b>")
     assert "• Проверьте воду." in preview
     assert "• Уберите лекарства." in preview
 
@@ -352,9 +352,25 @@ def test_curated_quick_guide_gets_numbered_steps():
 
     preview = format_post(story)
 
-    assert "🧭 КОРОТКАЯ ИНСТРУКЦИЯ" in preview
+    assert preview.startswith("<b>Прогулка</b>")
     assert "1. Проверьте карабин." in preview
     assert "2. Осмотрите поводок." in preview
+
+
+def test_formatter_never_prints_a_generated_category_heading():
+    story = item("Беркут и олень попали в объектив фотоловушки")
+    story.update(
+        event_category="care",
+        primary_species=["other_animals"],
+        matched_species=["other_animals"],
+    )
+
+    preview = format_post(story)
+
+    assert preview.startswith("<b>Беркут и олень")
+    assert "УХОД ЗА ПИТОМЦЕМ" not in preview
+    assert "#УходЗаПитомцем" not in preview
+    assert "#МирЖивотных #ДикиеЖивотные" in preview
 
 
 def test_relevant_scoring_respects_the_publication_threshold():
