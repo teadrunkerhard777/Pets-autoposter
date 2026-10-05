@@ -11065,5 +11065,14 @@
     "media_id": "pexels:35172441",
     "pexels_id": 35172441,
     "pixabay_id": null
+  },
+  {
+    "title": "Весёлое видео с животными",
+    "url": "https://pixabay.com/videos/id-305342/",
+    "published_at": null,
+    "source": "Pixabay",
+    "media_id": "pixabay:305342",
+    "pexels_id": null,
+    "pixabay_id": 305342
   }
 ]
