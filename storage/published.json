@@ -11842,5 +11842,14 @@
       "event_date": null,
       "locations": []
     }
+  },
+  {
+    "title": "Весёлое видео с животными",
+    "url": "https://www.pexels.com/video/golden-retriever-puppy-relaxing-outdoors-37589235/",
+    "published_at": null,
+    "source": "Pexels",
+    "media_id": "pexels:37589235",
+    "pexels_id": 37589235,
+    "pixabay_id": null
   }
 ]
